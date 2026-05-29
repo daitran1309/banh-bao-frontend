@@ -72,7 +72,7 @@ export default function ChuShop() {
 
         const ws = XLSX.utils.aoa_to_sheet(rows)
         ws['!cols'] = [
-            { wch: 5 }, { wch: 20 }, { wch: 10 },
+            { wch: 25 }, { wch: 20 }, { wch: 10 },
             { wch: 10 }, { wch: 10 }, { wch: 8 }, { wch: 10 }, { wch: 8 }, { wch: 12 },
             { wch: 10 }, { wch: 8 }, { wch: 10 }, { wch: 8 }, { wch: 12 }
         ]
