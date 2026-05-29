@@ -65,8 +65,8 @@ export default function NhanVien() {
 
     const tongDT = data.reduce((s, d) => s + tinhDoanhThu(d), 0)
     const tongThu = Number(grab) + Number(chuyenKhoan) + Number(tienMat)
-    const thieuDu = Number(banGiao) - tongThu
-
+    const tienMatThucTe = tongDT - Number(grab) - Number(chuyenKhoan)
+    const thieuDu = Number(banGiao) - tienMatThucTe
     async function ketThucCa() {
         if (!window.confirm('Xác nhận kết thúc ca?')) return
         setLoading(true)
@@ -192,9 +192,14 @@ export default function NhanVien() {
                 </div>
             </div>
 
-            {/* Bàn giao */}
             <div style={s.card}>
                 <h3 style={s.cardTitle}>🤝 Bàn giao tiền mặt</h3>
+                <div style={s.moneyRow}>
+                    <label style={s.moneyLabel}>Tiền mặt thực tế:</label>
+                    <span style={{ fontSize: 16, fontWeight: 'bold', color: '#374151' }}>
+                        {tienMatThucTe.toLocaleString('vi-VN')}đ
+                    </span>
+                </div>
                 <div style={s.moneyRow}>
                     <label style={s.moneyLabel}>Số tiền bàn giao:</label>
                     <input style={s.moneyInput} type="number" min="0" value={banGiao}
