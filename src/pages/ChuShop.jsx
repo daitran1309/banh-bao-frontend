@@ -19,7 +19,7 @@ export default function ChuShop() {
     const [loading, setLoading] = useState(false)
     const headers = { Authorization: `Bearer ${token}` }
     const [showDoiMK, setShowDoiMK] = useState(false)
-    const [tab, setTab] = useState('bien_ban')
+
 
     useEffect(() => { loadBienBan() }, [ngay])
 
