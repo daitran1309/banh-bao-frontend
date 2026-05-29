@@ -37,8 +37,10 @@ export default function Login() {
     return (
         <div style={styles.container}>
             <div style={styles.card}>
-                <div style={styles.logo}>🥟</div>
-                <h2 style={styles.title}>Quản Lý Bánh Bao</h2>
+                <div style={styles.logoContainer}>
+                    <img src="/logo.png" alt="Logo" style={styles.logoImg} />
+                </div>
+                <h2 style={styles.title}>Chốt Ca Bao Tea</h2>
 
                 {loadingDS
                     ? <p style={{ textAlign: 'center', color: '#6b7280' }}>Đang tải danh sách...</p>
@@ -89,7 +91,8 @@ const styles = {
         boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
         display: 'flex', flexDirection: 'column', gap: 12
     },
-    logo: { fontSize: 64, textAlign: 'center' },
+    logoContainer: { display: 'flex', justifyContent: 'center', marginBottom: 8 },
+    logoImg: { height: 80, objectFit: 'contain' },
     title: { textAlign: 'center', margin: 0, color: '#d97706' },
     input: {
         padding: '14px 16px', fontSize: 16, borderRadius: 10,
