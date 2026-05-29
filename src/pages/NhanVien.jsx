@@ -49,7 +49,7 @@ export default function NhanVien() {
 
     const tongDT = data.reduce((s, d) => s + tinhDoanhThu(d), 0)
     const tongThu = Number(grab) + Number(chuyenKhoan) + Number(tienMat)
-    const thieuDu = tongThu - Number(banGiao)
+    const thieuDu = Number(banGiao) - tongThu
 
     async function ketThucCa() {
         if (!window.confirm('Xác nhận kết thúc ca?')) return
