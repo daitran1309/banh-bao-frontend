@@ -4,7 +4,10 @@ import axios from 'axios'
 import * as XLSX from 'xlsx'
 import { saveAs } from 'file-saver'
 import ExcelJS from 'exceljs'
-
+import BaoCao from './BaoCao'
+import LichSu from './LichSu'
+import QuanLyBanh from './QuanLyBanh'
+import DoiMatKhau from '../components/DoiMatKhau'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -15,6 +18,8 @@ export default function ChuShop() {
     const [bienBan, setBienBan] = useState(null)
     const [loading, setLoading] = useState(false)
     const headers = { Authorization: `Bearer ${token}` }
+    const [showDoiMK, setShowDoiMK] = useState(false)
+    const [tab, setTab] = useState('bien_ban')
 
     useEffect(() => { loadBienBan() }, [ngay])
 
@@ -337,8 +342,13 @@ export default function ChuShop() {
         <div style={s.page}>
             <div style={{ ...s.header, background: '#7c3aed' }}>
                 <span>👑 {user.ten}</span>
-                <button onClick={logout} style={s.logoutBtn}>Đăng xuất</button>
+                <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => setShowDoiMK(true)} style={s.logoutBtn}>🔒</button>
+                    <button onClick={logout} style={s.logoutBtn}>Đăng xuất</button>
+                </div>
             </div>
+
+            {showDoiMK && <DoiMatKhau onClose={() => setShowDoiMK(false)} />}
 
             {/* Chọn ngày */}
             <div style={s.dateRow}>
@@ -348,23 +358,46 @@ export default function ChuShop() {
                 <button onClick={xuatExcel} style={s.exportBtn}>📥 Xuất Excel</button>
             </div>
 
-            {loading && <p style={{ textAlign: 'center', color: '#6b7280' }}>Đang tải...</p>}
-
-            {/* Ca Sáng */}
-            <div style={s.caCard}>
-                <div style={{ ...s.caHeader, background: '#f59e0b' }}>
-                    ☀️ CA SÁNG {caSang ? `— ${bienBan?.cas?.find(c => c.loai_ca === 'sang')?.nhan_vien}` : '(Chưa có)'}
-                </div>
-                {renderBang(caSang)}
+            {/* Tabs */}
+            <div style={s.tabs}>
+                {[
+                    { key: 'bien_ban', label: '📋 Biên bản' },
+                    { key: 'baocao', label: '📊 Báo cáo' },
+                    { key: 'lich_su', label: '🕐 Lịch sử' },
+                    { key: 'quan_ly', label: '🥟 Bánh' },
+                ].map(t => (
+                    <button key={t.key}
+                        style={tab === t.key ? { ...s.tab, ...s.tabActive } : s.tab}
+                        onClick={() => setTab(t.key)}>
+                        {t.label}
+                    </button>
+                ))}
             </div>
 
-            {/* Ca Chiều */}
-            <div style={s.caCard}>
-                <div style={{ ...s.caHeader, background: '#7c3aed' }}>
-                    🌙 CA CHIỀU {caChieu ? `— ${bienBan?.cas?.find(c => c.loai_ca === 'chieu')?.nhan_vien}` : '(Chưa có)'}
+            {tab === 'baocao' && <BaoCao />}
+            {tab === 'lich_su' && <LichSu />}
+            {tab === 'quan_ly' && <QuanLyBanh />}
+
+            {tab === 'bien_ban' && <>
+                {loading && <p style={{ textAlign: 'center', color: '#6b7280' }}>Đang tải...</p>}
+
+                {/* Ca Sáng */}
+                <div style={s.caCard}>
+                    <div style={{ ...s.caHeader, background: '#f59e0b' }}>
+                        ☀️ CA SÁNG {caSang ? `— ${bienBan?.cas?.find(c => c.loai_ca === 'sang')?.nhan_vien}` : '(Chưa có)'}
+                    </div>
+                    {renderBang(caSang)}
                 </div>
-                {renderBang(caChieu)}
-            </div>
+
+                {/* Ca Chiều */}
+                <div style={s.caCard}>
+                    <div style={{ ...s.caHeader, background: '#7c3aed' }}>
+                        🌙 CA CHIỀU {caChieu ? `— ${bienBan?.cas?.find(c => c.loai_ca === 'chieu')?.nhan_vien}` : '(Chưa có)'}
+                    </div>
+                    {renderBang(caChieu)}
+                </div>
+            </>}
+
         </div>
     )
 }
@@ -407,4 +440,10 @@ const s = {
         display: 'flex', justifyContent: 'space-between',
         alignItems: 'center', marginBottom: 8, fontSize: 15
     },
+    tabs: { display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto' },
+    tab: {
+        flex: 1, padding: 10, fontSize: 13, borderRadius: 10, whiteSpace: 'nowrap',
+        border: '2px solid #e5e7eb', background: '#fff', cursor: 'pointer'
+    },
+    tabActive: { border: '2px solid #7c3aed', background: '#f5f3ff', fontWeight: 'bold' },
 }

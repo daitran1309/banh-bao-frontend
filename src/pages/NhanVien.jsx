@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
-
+import XacNhanCa from '../components/XacNhanCa'
+import DoiMatKhau from '../components/DoiMatKhau'
 const API = import.meta.env.VITE_API_URL
 
 export default function NhanVien() {
@@ -17,7 +18,8 @@ export default function NhanVien() {
     const [loading, setLoading] = useState(false)
     const [msg, setMsg] = useState('')
     const headers = { Authorization: `Bearer ${token}` }
-
+    const [showXacNhan, setShowXacNhan] = useState(false)
+    const [showDoiMK, setShowDoiMK] = useState(false)
     useEffect(() => {
         axios.get(`${API}/api/ca/hien-tai`, { headers }).then(async res => {
             if (res.data) {
@@ -30,15 +32,23 @@ export default function NhanVien() {
                     const banhs = await axios.get(`${API}/api/banh`, { headers })
                     const tonDau = await axios.post(`${API}/api/ca/ton-dau`,
                         { ca_id: res.data.id }, { headers })
-                    setData(tonDau.data.map(b => ({
-                        ...b, so_bich_xuat: 0, hong: 0, ton_cuoi: 0
-                    })))
+                    const saved = localStorage.getItem('ca_tam')
+                    if (saved) {
+                        setData(JSON.parse(saved))
+                    } else {
+                        setData(tonDau.data.map(b => ({
+                            ...b, so_bich_xuat: 0, hong: 0, ton_cuoi: 0
+                        })))
+                    }
                 } catch (e) {
                     console.error('Lỗi load lại dữ liệu:', e)
                 }
             }
         })
     }, [])
+    useEffect(() => {
+        if (data.length > 0) localStorage.setItem('ca_tam', JSON.stringify(data))
+    }, [data])
 
     async function batDauCa() {
         if (!loaiCa) return setMsg('Chọn ca sáng hoặc chiều!')
@@ -76,6 +86,8 @@ export default function NhanVien() {
                 grab, chuyen_khoan: chuyenKhoan, tien_mat: tienMat, ban_giao: banGiao
             }, { headers })
             setMsg('✅ Ca đã kết thúc!')
+            localStorage.removeItem('ca_tam')
+            setShowXacNhan(false)
             setStep('chon_ca'); setCaId(null); setData([]); setLoaiCa('')
             setGrab(0); setChuyenKhoan(0); setTienMat(0); setBanGiao(0)
         } catch (e) { setMsg(e.response?.data?.error || 'Lỗi!') }
@@ -106,7 +118,10 @@ export default function NhanVien() {
         <div style={s.page}>
             <div style={{ ...s.header, background: '#f59e0b' }}>
                 <span>🥟 {user.ten} — Ca {loaiCa === 'sang' ? 'Sáng' : 'Chiều'}</span>
-                <button onClick={logout} style={s.logoutBtn}>Đăng xuất</button>
+                <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => setShowDoiMK(true)} style={s.logoutBtn}>🔒</button>
+                    <button onClick={logout} style={s.logoutBtn}>Đăng xuất</button>
+                </div>
             </div>
 
             {/* Tổng doanh thu */}
@@ -215,9 +230,23 @@ export default function NhanVien() {
 
             {msg && <div style={s.successMsg}>{msg}</div>}
 
-            <button style={{ ...s.btnMain, background: '#dc2626' }} onClick={ketThucCa} disabled={loading}>
-                {loading ? 'Đang lưu...' : '⏹ Kết thúc & Lưu ca'}
+            <button style={{ ...s.btnMain, background: '#dc2626' }}
+                onClick={() => setShowXacNhan(true)}>
+                ⏹ Kết thúc & Xem tóm tắt
             </button>
+
+            {showXacNhan && (
+                <XacNhanCa
+                    data={data} tongDT={tongDT}
+                    grab={grab} chuyenKhoan={chuyenKhoan}
+                    tienMat={tienMat} banGiao={banGiao}
+                    loading={loading}
+                    onConfirm={ketThucCa}
+                    onCancel={() => setShowXacNhan(false)}
+                />
+            )}
+
+            {showDoiMK && <DoiMatKhau onClose={() => setShowDoiMK(false)} />}
         </div>
     )
 }
