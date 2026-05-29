@@ -19,8 +19,24 @@ export default function NhanVien() {
     const headers = { Authorization: `Bearer ${token}` }
 
     useEffect(() => {
-        axios.get(`${API}/api/ca/hien-tai`, { headers }).then(res => {
-            if (res.data) { setStep('dang_lam'); setCaId(res.data.id); setLoaiCa(res.data.loai_ca) }
+        axios.get(`${API}/api/ca/hien-tai`, { headers }).then(async res => {
+            if (res.data) {
+                setStep('dang_lam')
+                setCaId(res.data.id)
+                setLoaiCa(res.data.loai_ca)
+
+                // Load lại dữ liệu tồn đầu khi reload trang
+                try {
+                    const banhs = await axios.get(`${API}/api/banh`, { headers })
+                    const tonDau = await axios.post(`${API}/api/ca/ton-dau`,
+                        { ca_id: res.data.id }, { headers })
+                    setData(tonDau.data.map(b => ({
+                        ...b, so_bich_xuat: 0, hong: 0, ton_cuoi: 0
+                    })))
+                } catch (e) {
+                    console.error('Lỗi load lại dữ liệu:', e)
+                }
+            }
         })
     }, [])
 
