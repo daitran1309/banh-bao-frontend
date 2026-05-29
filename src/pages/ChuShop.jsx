@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import * as XLSX from 'xlsx'
 import { saveAs } from 'file-saver'
+import ExcelJS from 'exceljs'
+
 
 const API = import.meta.env.VITE_API_URL
 
@@ -29,55 +31,228 @@ export default function ChuShop() {
         return bienBan?.cas?.find(c => c.loai_ca === loai)
     }
 
-    function xuatExcel() {
+    async function xuatExcel() {
         if (!bienBan) return
-        const wb = XLSX.utils.book_new()
         const caSang = getCa('sang')
         const caChieu = getCa('chieu')
         const banhs = bienBan.banhs || []
 
-        // Tạo dữ liệu bảng
-        const rows = []
-        rows.push(['BIÊN BẢN BÀN GIAO CA', '', '', '', '', '', '', '', '', '', '', '', '', ''])
-        rows.push(['', '', '', 'CA 1 (SÁNG)', '', '', '', '', '', 'CA 2 (CHIỀU)', '', '', '', ''])
-        rows.push(['STT', 'Tên sản phẩm', 'Giá SP',
-            'Ngày trước', 'Nhập mới', 'Tổng', 'Tồn ca 1', 'SL bán', 'Thành tiền',
-            'Nhập mới', 'Tổng', 'Tồn ca 2', 'SL bán', 'Thành tiền'
-        ])
+        const wb = new ExcelJS.Workbook()
+        const ws = wb.addWorksheet('Biên bản')
 
+        // ========== STYLE ==========
+        const headerStyle = {
+            font: { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 },
+            fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD97706' } },
+            alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },
+            border: {
+                top: { style: 'thin' }, bottom: { style: 'thin' },
+                left: { style: 'thin' }, right: { style: 'thin' }
+            }
+        }
+
+        const ca1Style = {
+            font: { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 },
+            fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF59E0B' } },
+            alignment: { horizontal: 'center', vertical: 'middle' },
+            border: {
+                top: { style: 'thin' }, bottom: { style: 'thin' },
+                left: { style: 'thin' }, right: { style: 'thin' }
+            }
+        }
+
+        const ca2Style = {
+            font: { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 },
+            fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF7C3AED' } },
+            alignment: { horizontal: 'center', vertical: 'middle' },
+            border: {
+                top: { style: 'thin' }, bottom: { style: 'thin' },
+                left: { style: 'thin' }, right: { style: 'thin' }
+            }
+        }
+
+        const dataStyle = {
+            alignment: { horizontal: 'center', vertical: 'middle' },
+            border: {
+                top: { style: 'thin' }, bottom: { style: 'thin' },
+                left: { style: 'thin' }, right: { style: 'thin' }
+            }
+        }
+
+        const dataAltStyle = {
+            fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF8F0' } },
+            alignment: { horizontal: 'center', vertical: 'middle' },
+            border: {
+                top: { style: 'thin' }, bottom: { style: 'thin' },
+                left: { style: 'thin' }, right: { style: 'thin' }
+            }
+        }
+
+        const moneyStyle = {
+            font: { bold: true, color: { argb: 'FFDC2626' } },
+            alignment: { horizontal: 'right', vertical: 'middle' },
+            numFmt: '#,##0',
+            border: {
+                top: { style: 'thin' }, bottom: { style: 'thin' },
+                left: { style: 'thin' }, right: { style: 'thin' }
+            }
+        }
+
+        const totalStyle = {
+            font: { bold: true, size: 12, color: { argb: 'FFDC2626' } },
+            fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } },
+            alignment: { horizontal: 'right', vertical: 'middle' },
+            numFmt: '#,##0',
+            border: {
+                top: { style: 'medium' }, bottom: { style: 'medium' },
+                left: { style: 'thin' }, right: { style: 'thin' }
+            }
+        }
+
+        const greenStyle = {
+            font: { bold: true, color: { argb: 'FF059669' } },
+            alignment: { horizontal: 'center', vertical: 'middle' },
+            border: {
+                top: { style: 'thin' }, bottom: { style: 'thin' },
+                left: { style: 'thin' }, right: { style: 'thin' }
+            }
+        }
+
+        // ========== TIÊU ĐỀ ==========
+        ws.mergeCells('A1:N1')
+        const titleCell = ws.getCell('A1')
+        titleCell.value = `BIÊN BẢN BÀN GIAO CA — Ngày ${ngay}`
+        titleCell.style = {
+            font: { bold: true, size: 14, color: { argb: 'FF92400E' } },
+            fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } },
+            alignment: { horizontal: 'center', vertical: 'middle' }
+        }
+        ws.getRow(1).height = 30
+
+        // ========== HEADER CA ==========
+        ws.mergeCells('D2:I2')
+        ws.getCell('D2').value = '☀️ CA 1 (SÁNG)'
+        ws.getCell('D2').style = ca1Style
+
+        ws.mergeCells('J2:N2')
+        ws.getCell('J2').value = '🌙 CA 2 (CHIỀU)'
+        ws.getCell('J2').style = ca2Style
+
+        // ========== HEADER CỘT ==========
+        const headers = [
+            'STT', 'Tên sản phẩm', 'Giá SP',
+            'Tồn đầu', 'Nhập mới', 'Tổng', 'Tồn cuối', 'SL bán', 'Thành tiền',
+            'Nhập mới', 'Tổng', 'Tồn cuối', 'SL bán', 'Thành tiền'
+        ]
+        const headerRow = ws.addRow(headers)
+        headerRow.eachCell(cell => { cell.style = headerStyle })
+        ws.getRow(3).height = 35
+
+        // ========== DỮ LIỆU ==========
+        let tongSang = 0, tongChieu = 0
         banhs.forEach((banh, i) => {
             const ctSang = caSang?.chi_tiet?.find(ct => ct.banh_id === banh.id) || {}
             const ctChieu = caChieu?.chi_tiet?.find(ct => ct.banh_id === banh.id) || {}
-            const tongSang = (Number(ctSang.ton_dau) || 0) + (Number(ctSang.xuat) || 0)
-            const tongChieu = (Number(ctChieu.ton_dau) || 0) + (Number(ctChieu.xuat) || 0)
-            rows.push([
+            const tongS = (Number(ctSang.ton_dau) || 0) + (Number(ctSang.xuat) || 0)
+            const tongC = (Number(ctChieu.ton_dau) || 0) + (Number(ctChieu.xuat) || 0)
+            const dtSang = Number(ctSang.doanh_thu || 0)
+            const dtChieu = Number(ctChieu.doanh_thu || 0)
+            tongSang += dtSang
+            tongChieu += dtChieu
+
+            const row = ws.addRow([
                 i + 1, banh.ten_banh, Number(banh.gia),
-                ctSang.ton_dau || 0, ctSang.xuat || 0, tongSang, ctSang.ton_cuoi || 0, ctSang.ban || 0, ctSang.doanh_thu || 0,
-                ctChieu.xuat || 0, tongChieu, ctChieu.ton_cuoi || 0, ctChieu.ban || 0, ctChieu.doanh_thu || 0
+                ctSang.ton_dau || 0, ctSang.xuat || 0, tongS, ctSang.ton_cuoi || 0, ctSang.ban || 0, dtSang,
+                ctChieu.xuat || 0, tongC, ctChieu.ton_cuoi || 0, ctChieu.ban || 0, dtChieu
             ])
+
+            const rowStyle = i % 2 === 0 ? dataStyle : dataAltStyle
+            row.eachCell((cell, colNum) => {
+                if (colNum === 2) {
+                    cell.style = { ...rowStyle, alignment: { horizontal: 'left', vertical: 'middle' } }
+                } else if (colNum === 9 || colNum === 14) {
+                    cell.style = { ...moneyStyle, fill: rowStyle.fill }
+                } else if (colNum === 8 || colNum === 13) {
+                    cell.style = { ...greenStyle, fill: rowStyle.fill }
+                } else {
+                    cell.style = rowStyle
+                }
+            })
+            row.height = 22
         })
 
-        // Tổng cộng
-        rows.push(['', 'TỔNG CỘNG', '', '', '', '', '', '', caSang ? caSang.chi_tiet?.reduce((s, c) => s + Number(c.doanh_thu), 0) : 0,
-            '', '', '', '', caChieu ? caChieu.chi_tiet?.reduce((s, c) => s + Number(c.doanh_thu), 0) : 0])
-        rows.push([])
+        // ========== TỔNG CỘNG ==========
+        const totalRow = ws.addRow([
+            '', 'TỔNG CỘNG', '', '', '', '', '', '', tongSang,
+            '', '', '', '', tongChieu
+        ])
+        totalRow.eachCell((cell, colNum) => {
+            if (colNum === 2) {
+                cell.style = { ...totalStyle, alignment: { horizontal: 'right' } }
+            } else {
+                cell.style = totalStyle
+            }
+        })
+        totalRow.height = 25
 
-        // Phần thu tiền
-        rows.push(['Tiền bàn giao ca 1:', '', '', caSang?.ban_giao || 0])
-        rows.push(['Grab', '', '', caSang?.grab || 0])
-        rows.push(['Chuyển khoản', '', '', caSang?.chuyen_khoan || 0])
-        rows.push(['Chi:'])
-        rows.push(['Bàn giao tiền mặt', '', '', caSang?.tien_mat || 0])
-        rows.push(['Thiếu', '', '', caSang?.thieu_du || 0])
+        // ========== PHẦN THU TIỀN ==========
+        ws.addRow([])
 
-        const ws = XLSX.utils.aoa_to_sheet(rows)
-        ws['!cols'] = [
-            { wch: 25 }, { wch: 20 }, { wch: 10 },
-            { wch: 10 }, { wch: 10 }, { wch: 8 }, { wch: 10 }, { wch: 8 }, { wch: 12 },
-            { wch: 10 }, { wch: 8 }, { wch: 10 }, { wch: 8 }, { wch: 12 }
+        const addMoneyRow = (label, valueSang, valueChieu) => {
+            const row = ws.addRow(['', label, '', valueSang, '', '', '', '', '', valueChieu])
+            row.getCell(2).style = { font: { bold: true }, alignment: { horizontal: 'left' } }
+            row.getCell(4).style = { numFmt: '#,##0', alignment: { horizontal: 'right' }, font: { color: { argb: 'FF059669' } } }
+            row.getCell(10).style = { numFmt: '#,##0', alignment: { horizontal: 'right' }, font: { color: { argb: 'FF7C3AED' } } }
+        }
+
+        addMoneyRow('🛵 Grab:', Number(caSang?.grab || 0), Number(caChieu?.grab || 0))
+        addMoneyRow('🏦 Chuyển khoản:', Number(caSang?.chuyen_khoan || 0), Number(caChieu?.chuyen_khoan || 0))
+        addMoneyRow('💵 Tiền mặt:', Number(caSang?.tien_mat || 0), Number(caChieu?.tien_mat || 0))
+        addMoneyRow('💰 Tổng thu:', Number(caSang?.tong_thu || 0), Number(caChieu?.tong_thu || 0))
+        addMoneyRow('🤝 Bàn giao tiền mặt:', Number(caSang?.ban_giao || 0), Number(caChieu?.ban_giao || 0))
+
+        // Thiếu/Dư
+        const thieuDuRow = ws.addRow([
+            '', 'Thiếu / Dư:', '', Number(caSang?.thieu_du || 0), '', '', '', '', '', Number(caChieu?.thieu_du || 0)
+        ])
+        thieuDuRow.getCell(2).style = { font: { bold: true, size: 12 } }
+        const thieuDuSang = Number(caSang?.thieu_du || 0)
+        const thieuDuChieu = Number(caChieu?.thieu_du || 0)
+        thieuDuRow.getCell(4).style = {
+            numFmt: '#,##0', font: {
+                bold: true, size: 12,
+                color: { argb: thieuDuSang >= 0 ? 'FF059669' : 'FFDC2626' }
+            },
+            alignment: { horizontal: 'right' }
+        }
+        thieuDuRow.getCell(10).style = {
+            numFmt: '#,##0', font: {
+                bold: true, size: 12,
+                color: { argb: thieuDuChieu >= 0 ? 'FF059669' : 'FFDC2626' }
+            },
+            alignment: { horizontal: 'right' }
+        }
+
+        // ========== ĐỘ RỘNG CỘT ==========
+        ws.columns = [
+            { width: 5 },   // STT
+            { width: 22 },  // Tên bánh
+            { width: 12 },  // Giá
+            { width: 10 },  // Tồn đầu CA1
+            { width: 10 },  // Nhập mới CA1
+            { width: 8 },   // Tổng CA1
+            { width: 10 },  // Tồn cuối CA1
+            { width: 8 },   // SL bán CA1
+            { width: 14 },  // Thành tiền CA1
+            { width: 10 },  // Nhập mới CA2
+            { width: 8 },   // Tổng CA2
+            { width: 10 },  // Tồn cuối CA2
+            { width: 8 },   // SL bán CA2
+            { width: 14 },  // Thành tiền CA2
         ]
-        XLSX.utils.book_append_sheet(wb, ws, 'Biên bản')
-        const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+
+        // ========== XUẤT FILE ==========
+        const buf = await wb.xlsx.writeBuffer()
         saveAs(new Blob([buf], { type: 'application/octet-stream' }), `bien-ban-${ngay}.xlsx`)
     }
 
