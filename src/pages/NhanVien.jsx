@@ -5,6 +5,41 @@ import XacNhanCa from '../components/XacNhanCa'
 import DoiMatKhau from '../components/DoiMatKhau'
 const API = import.meta.env.VITE_API_URL
 
+function ThemPhatSinh({ onAdd }) {
+    const [loai, setLoai] = useState('chi')
+    const [ten, setTen] = useState('')
+    const [soTien, setSoTien] = useState('')
+
+    function handleAdd() {
+        if (!ten || !soTien) return
+        onAdd({ loai, ten, so_tien: soTien })
+        setTen(''); setSoTien('')
+    }
+
+    return (
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+            <select value={loai} onChange={e => setLoai(e.target.value)}
+                style={{ padding: '8px 10px', borderRadius: 8, border: '2px solid #e5e7eb', fontSize: 14 }}>
+                <option value="thu">+ Thu</option>
+                <option value="chi">- Chi</option>
+            </select>
+            <input style={{ flex: 2, padding: '8px 10px', borderRadius: 8, border: '2px solid #e5e7eb', fontSize: 14 }}
+                placeholder="Tên khoản (VD: mua túi nilon)"
+                value={ten} onChange={e => setTen(e.target.value)} />
+            <input style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '2px solid #e5e7eb', fontSize: 14 }}
+                type="number" placeholder="Số tiền"
+                value={soTien} onChange={e => setSoTien(e.target.value)} />
+            <button onClick={handleAdd}
+                style={{
+                    padding: '8px 16px', borderRadius: 8, border: 'none',
+                    background: '#f59e0b', color: '#fff', fontWeight: 'bold', cursor: 'pointer', fontSize: 14
+                }}>
+                + Thêm
+            </button>
+        </div>
+    )
+}
+
 export default function NhanVien() {
     const { user, token, logout } = useAuth()
     const [step, setStep] = useState('chon_ca')
@@ -20,6 +55,8 @@ export default function NhanVien() {
     const headers = { Authorization: `Bearer ${token}` }
     const [showXacNhan, setShowXacNhan] = useState(false)
     const [showDoiMK, setShowDoiMK] = useState(false)
+    const [ghiChu, setGhiChu] = useState('')
+    const [phatSinh, setPhatSinh] = useState([])
     useEffect(() => {
         axios.get(`${API}/api/ca/hien-tai`, { headers }).then(async res => {
             if (res.data) {
@@ -83,13 +120,16 @@ export default function NhanVien() {
         try {
             await axios.post(`${API}/api/ca/ket-thuc`, {
                 ca_id: caId, chi_tiet: data,
-                grab, chuyen_khoan: chuyenKhoan, tien_mat: tienMat, ban_giao: banGiao
+                grab, chuyen_khoan: chuyenKhoan, tien_mat: tienMat, ban_giao: banGiao,
+                ghi_chu: ghiChu, phat_sinh: phatSinh
             }, { headers })
             setMsg('✅ Ca đã kết thúc!')
             localStorage.removeItem('ca_tam')
             setShowXacNhan(false)
             setStep('chon_ca'); setCaId(null); setData([]); setLoaiCa('')
             setGrab(0); setChuyenKhoan(0); setTienMat(0); setBanGiao(0)
+            setGhiChu('')
+            setPhatSinh([])
         } catch (e) { setMsg(e.response?.data?.error || 'Lỗi!') }
         finally { setLoading(false) }
     }
@@ -229,7 +269,50 @@ export default function NhanVien() {
             </div>
 
             {msg && <div style={s.successMsg}>{msg}</div>}
+            {/* Thu chi phát sinh */}
+            <div style={s.card}>
+                <h3 style={s.cardTitle}>💸 Thu chi phát sinh</h3>
 
+                {phatSinh.map((ps, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                        <span style={{
+                            padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 'bold',
+                            background: ps.loai === 'thu' ? '#d1fae5' : '#fee2e2',
+                            color: ps.loai === 'thu' ? '#059669' : '#dc2626'
+                        }}>
+                            {ps.loai === 'thu' ? '+ Thu' : '- Chi'}
+                        </span>
+                        <span style={{ flex: 1 }}>{ps.ten}</span>
+                        <span style={{ fontWeight: 'bold' }}>
+                            {Number(ps.so_tien).toLocaleString('vi-VN')}đ
+                        </span>
+                        <button onClick={() => setPhatSinh(prev => prev.filter((_, j) => j !== i))}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#dc2626' }}>
+                            ✕
+                        </button>
+                    </div>
+                ))}
+
+                {/* Form thêm */}
+                <ThemPhatSinh onAdd={ps => setPhatSinh(prev => [...prev, ps])} />
+            </div>
+
+
+
+            {/* Ghi chú */}
+            <div style={s.card}>
+                <h3 style={s.cardTitle}>📝 Ghi chú ca</h3>
+                <textarea
+                    style={{
+                        width: '100%', padding: '10px 12px', fontSize: 15, borderRadius: 10,
+                        border: '2px solid #e5e7eb', resize: 'vertical', minHeight: 80, boxSizing: 'border-box'
+                    }}
+                    placeholder="VD: Hết bánh chay lúc 10h, máy POS lỗi..."
+                    value={ghiChu}
+                    onChange={e => setGhiChu(e.target.value)}
+                />
+            </div>
+            {/* nut ket thuc ca*/}
             <button style={{ ...s.btnMain, background: '#dc2626' }}
                 onClick={() => setShowXacNhan(true)}>
                 ⏹ Kết thúc & Xem tóm tắt
