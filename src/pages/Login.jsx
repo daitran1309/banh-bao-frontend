@@ -92,7 +92,7 @@ const styles = {
         display: 'flex', flexDirection: 'column', gap: 12
     },
     logoContainer: { display: 'flex', justifyContent: 'center', marginBottom: 8 },
-    logoImg: { height: 80, objectFit: 'contain' },
+    logoImg: { height: 120, objectFit: 'contain' },
     title: { textAlign: 'center', margin: 0, color: '#d97706' },
     input: {
         padding: '14px 16px', fontSize: 16, borderRadius: 10,

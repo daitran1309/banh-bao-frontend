@@ -186,6 +186,18 @@ export default function ChuShop() {
             row.height = 22
         })
 
+        // Cộng/trừ phát sinh vào tổng
+        const psSang = caSang?.phat_sinh || []
+        const psChieu = caChieu?.phat_sinh || []
+        psSang.forEach(ps => {
+            const amt = Number(ps.so_tien) || 0
+            tongSang += ps.loai === 'thu' ? amt : -amt
+        })
+        psChieu.forEach(ps => {
+            const amt = Number(ps.so_tien) || 0
+            tongChieu += ps.loai === 'thu' ? amt : -amt
+        })
+
         // ========== TỔNG CỘNG ==========
         const totalRow = ws.addRow([
             '', 'TỔNG CỘNG', '', '', '', '', '', '', tongSang,
@@ -199,6 +211,23 @@ export default function ChuShop() {
             }
         })
         totalRow.height = 25
+
+        // ========== THU CHI PHÁT SINH ==========
+        if (psSang.length > 0 || psChieu.length > 0) {
+            ws.addRow([])
+            const psHeader = ws.addRow(['', '💸 THU CHI PHÁT SINH'])
+            psHeader.getCell(2).style = { font: { bold: true, size: 12, color: { argb: 'FF92400E' } } }
+            const allPs = [...psSang.map(p => ({ ...p, ca: 'sang' })), ...psChieu.map(p => ({ ...p, ca: 'chieu' }))]
+            allPs.forEach(ps => {
+                const label = `${ps.loai === 'thu' ? '+ Thu' : '- Chi'}: ${ps.ten} (Ca ${ps.ca === 'sang' ? 'Sáng' : 'Chiều'})`
+                const row = ws.addRow(['', label, '', Number(ps.so_tien)])
+                row.getCell(2).style = { alignment: { horizontal: 'left' } }
+                row.getCell(4).style = {
+                    numFmt: '#,##0', alignment: { horizontal: 'right' },
+                    font: { bold: true, color: { argb: ps.loai === 'thu' ? 'FF059669' : 'FFDC2626' } }
+                }
+            })
+        }
 
         // ========== PHẦN THU TIỀN ==========
         ws.addRow([])
@@ -305,14 +334,48 @@ export default function ChuShop() {
                         })}
                     </tbody>
                     <tfoot>
-                        <tr style={{ background: '#fef3c7', fontWeight: 'bold' }}>
-                            <td colSpan={8} style={{ ...s.td, textAlign: 'right' }}>TỔNG CỘNG:</td>
-                            <td style={{ ...s.tdR, color: '#dc2626', fontSize: 15 }}>
-                                {ca.chi_tiet?.reduce((sum, c) => sum + Number(c.doanh_thu), 0).toLocaleString('vi-VN')}đ
-                            </td>
-                        </tr>
+                        {(() => {
+                            const dtBanh = ca.chi_tiet?.reduce((sum, c) => sum + Number(c.doanh_thu), 0) || 0
+                            const dtPhatSinh = (ca.phat_sinh || []).reduce((sum, ps) => {
+                                const amt = Number(ps.so_tien) || 0
+                                return ps.loai === 'thu' ? sum + amt : sum - amt
+                            }, 0)
+                            const tongCong = dtBanh + dtPhatSinh
+                            return (
+                                <tr style={{ background: '#fef3c7', fontWeight: 'bold' }}>
+                                    <td colSpan={8} style={{ ...s.td, textAlign: 'right' }}>TỔNG CỘNG (đã gồm phát sinh):</td>
+                                    <td style={{ ...s.tdR, color: '#dc2626', fontSize: 15 }}>
+                                        {tongCong.toLocaleString('vi-VN')}đ
+                                    </td>
+                                </tr>
+                            )
+                        })()}
                     </tfoot>
                 </table>
+
+                {/* Thu chi phát sinh */}
+                {ca.phat_sinh && ca.phat_sinh.length > 0 && (
+                    <div style={{ padding: '12px 16px', borderTop: '2px solid #f3f4f6', background: '#fffbeb' }}>
+                        <div style={{ fontWeight: 'bold', color: '#92400e', marginBottom: 8, fontSize: 15 }}>💸 Thu chi phát sinh</div>
+                        {ca.phat_sinh.map((ps, i) => (
+                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 14 }}>
+                                <span>
+                                    <span style={{
+                                        padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 'bold', marginRight: 8,
+                                        background: ps.loai === 'thu' ? '#d1fae5' : '#fee2e2',
+                                        color: ps.loai === 'thu' ? '#059669' : '#dc2626'
+                                    }}>
+                                        {ps.loai === 'thu' ? '+ Thu' : '- Chi'}
+                                    </span>
+                                    {ps.ten}
+                                </span>
+                                <strong style={{ color: ps.loai === 'thu' ? '#059669' : '#dc2626' }}>
+                                    {Number(ps.so_tien).toLocaleString('vi-VN')}đ
+                                </strong>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 {/* Thu tiền */}
                 <div style={s.moneyBox}>

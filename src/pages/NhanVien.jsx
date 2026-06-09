@@ -110,7 +110,12 @@ export default function NhanVien() {
 
     function tinhDoanhThu(d) { return tinhBan(d) * Number(d.gia) }
 
-    const tongDT = data.reduce((s, d) => s + tinhDoanhThu(d), 0)
+    const tongDTBanh = data.reduce((s, d) => s + tinhDoanhThu(d), 0)
+    const tongPhatSinh = phatSinh.reduce((s, ps) => {
+        const amt = Number(ps.so_tien) || 0
+        return ps.loai === 'thu' ? s + amt : s - amt
+    }, 0)
+    const tongDT = tongDTBanh + tongPhatSinh
     const tongThu = Number(grab) + Number(chuyenKhoan) + Number(tienMat)
     const tienMatThucTe = tongDT - Number(grab) - Number(chuyenKhoan)
     const thieuDu = Number(banGiao) - tienMatThucTe
