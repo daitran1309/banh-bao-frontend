@@ -2,7 +2,14 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import XacNhanCa from '../components/XacNhanCa'
-import DoiMatKhau from '../components/DoiMatKhau'
+import SidebarLayout from '../components/SidebarLayout'
+import { Briefcase, Clock, User as UserIcon, Plus, X, BarChart2 } from 'lucide-react'
+import LichSu from './LichSu'
+import CaNhan from './CaNhan'
+import BaoCao from './BaoCao'
+import ChiTietCaModal from '../components/ChiTietCaModal'
+import InfoTooltip from '../components/InfoTooltip'
+
 const API = import.meta.env.VITE_API_URL
 
 function ThemPhatSinh({ onAdd }) {
@@ -18,32 +25,32 @@ function ThemPhatSinh({ onAdd }) {
 
     return (
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
-            <select value={loai} onChange={e => setLoai(e.target.value)}
-                style={{ padding: '8px 10px', borderRadius: 8, border: '2px solid #e5e7eb', fontSize: 14 }}>
+            <select className="input-field" value={loai} onChange={e => setLoai(e.target.value)} style={{ width: 'auto' }}>
                 <option value="thu">+ Thu</option>
                 <option value="chi">- Chi</option>
             </select>
-            <input style={{ flex: 2, padding: '8px 10px', borderRadius: 8, border: '2px solid #e5e7eb', fontSize: 14 }}
+            <input className="input-field" style={{ flex: 2 }}
                 placeholder="Tên khoản (VD: mua túi nilon)"
                 value={ten} onChange={e => setTen(e.target.value)} />
-            <input style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '2px solid #e5e7eb', fontSize: 14 }}
+            <input className="input-field" style={{ flex: 1 }}
                 type="number" placeholder="Số tiền"
                 value={soTien} onChange={e => setSoTien(e.target.value)} />
-            <button onClick={handleAdd}
+            <button className="btn btn-outline" onClick={handleAdd}
                 style={{
-                    padding: '8px 16px', borderRadius: 8, border: 'none',
-                    background: '#f59e0b', color: '#fff', fontWeight: 'bold', cursor: 'pointer', fontSize: 14
+                    borderColor: 'var(--primary)', color: 'var(--primary)', fontWeight: 'bold'
                 }}>
-                + Thêm
+                <Plus size={16} /> Thêm
             </button>
         </div>
     )
 }
 
 export default function NhanVien() {
-    const { user, token, logout } = useAuth()
+    const { user, token } = useAuth()
+    const [tab, setTab] = useState('lam_viec')
+
     const [step, setStep] = useState('chon_ca')
-    const [loaiCa, setLoaiCa] = useState('')
+    const [loaiCa, setLoaiCa] = useState('sang') // default to sang
     const [caId, setCaId] = useState(null)
     const [data, setData] = useState([])
     const [grab, setGrab] = useState(0)
@@ -54,9 +61,10 @@ export default function NhanVien() {
     const [msg, setMsg] = useState('')
     const headers = { Authorization: `Bearer ${token}` }
     const [showXacNhan, setShowXacNhan] = useState(false)
-    const [showDoiMK, setShowDoiMK] = useState(false)
     const [ghiChu, setGhiChu] = useState('')
     const [phatSinh, setPhatSinh] = useState([])
+    const [viewCaId, setViewCaId] = useState(null)
+
     useEffect(() => {
         axios.get(`${API}/api/ca/hien-tai`, { headers }).then(async res => {
             if (res.data) {
@@ -66,7 +74,6 @@ export default function NhanVien() {
 
                 // Load lại dữ liệu tồn đầu khi reload trang
                 try {
-                    const banhs = await axios.get(`${API}/api/banh`, { headers })
                     const tonDau = await axios.post(`${API}/api/ca/ton-dau`,
                         { ca_id: res.data.id }, { headers })
                     const saved = localStorage.getItem('ca_tam')
@@ -83,6 +90,7 @@ export default function NhanVien() {
             }
         })
     }, [])
+
     useEffect(() => {
         if (data.length > 0) localStorage.setItem('ca_tam', JSON.stringify(data))
     }, [data])
@@ -119,8 +127,8 @@ export default function NhanVien() {
     const tongThu = Number(grab) + Number(chuyenKhoan) + Number(tienMat)
     const tienMatThucTe = tongDT - Number(grab) - Number(chuyenKhoan)
     const thieuDu = Number(banGiao) - tienMatThucTe
+
     async function ketThucCa() {
-        if (!window.confirm('Xác nhận kết thúc ca?')) return
         setLoading(true)
         try {
             await axios.post(`${API}/api/ca/ket-thuc`, {
@@ -131,7 +139,7 @@ export default function NhanVien() {
             setMsg('✅ Ca đã kết thúc!')
             localStorage.removeItem('ca_tam')
             setShowXacNhan(false)
-            setStep('chon_ca'); setCaId(null); setData([]); setLoaiCa('')
+            setStep('chon_ca'); setCaId(null); setData([]); setLoaiCa('sang')
             setGrab(0); setChuyenKhoan(0); setTienMat(0); setBanGiao(0)
             setGhiChu('')
             setPhatSinh([])
@@ -139,254 +147,231 @@ export default function NhanVien() {
         finally { setLoading(false) }
     }
 
-    if (step === 'chon_ca') return (
-        <div style={s.page}>
-            <div style={{ ...s.header, background: '#f59e0b' }}>
-                <span>🥟 {user.ten}</span>
-                <button onClick={logout} style={s.logoutBtn}>Đăng xuất</button>
-            </div>
-            {msg && <div style={s.successMsg}>{msg}</div>}
-            <h2 style={{ textAlign: 'center', color: '#92400e' }}>Bắt đầu ca làm việc</h2>
-            <button style={loaiCa === 'sang' ? { ...s.caBtn, ...s.caBtnActive } : s.caBtn} onClick={() => setLoaiCa('sang')}>
-                ☀️ Ca Sáng
-            </button>
-            <button style={loaiCa === 'chieu' ? { ...s.caBtn, ...s.caBtnActive } : s.caBtn} onClick={() => setLoaiCa('chieu')}>
-                🌙 Ca Chiều
-            </button>
-            <button style={s.btnMain} onClick={batDauCa} disabled={loading}>
-                {loading ? 'Đang tải...' : '▶️ Bắt đầu ca'}
-            </button>
-        </div>
-    )
+    const MENU = [
+        { id: 'lam_viec', label: 'Làm việc', icon: <Briefcase size={20} /> },
+        { id: 'bao_cao', label: 'Thống kê', icon: <BarChart2 size={20} /> },
+        { id: 'lich_su', label: 'Lịch sử ca', icon: <Clock size={20} /> },
+        { id: 'ca_nhan', label: 'Cá nhân', icon: <UserIcon size={20} /> },
+    ]
 
-    return (
-        <div style={s.page}>
-            <div style={{ ...s.header, background: '#f59e0b' }}>
-                <span>🥟 {user.ten} — Ca {loaiCa === 'sang' ? 'Sáng' : 'Chiều'}</span>
-                <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={() => setShowDoiMK(true)} style={s.logoutBtn}>🔒</button>
-                    <button onClick={logout} style={s.logoutBtn}>Đăng xuất</button>
+    function renderChonCa() {
+        return (
+            <div className="card text-center" style={{ padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+                {msg && <div style={{ background: 'var(--success-bg)', color: 'var(--success)', padding: 12, borderRadius: 10, textAlign: 'center', fontWeight: 'bold', width: '100%' }}>{msg}</div>}
+
+                <div style={{ width: 80, height: 80, background: 'var(--primary-light)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+                    <Briefcase size={40} />
+                </div>
+                <h2>Chưa có ca làm việc nào</h2>
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                    <select className="input-field" value={loaiCa} onChange={e => setLoaiCa(e.target.value)} style={{ width: 150 }}>
+                        <option value="sang">☀️ Ca Sáng</option>
+                        <option value="chieu">🌙 Ca Chiều</option>
+                    </select>
+                    <button className="btn btn-primary" onClick={batDauCa} disabled={loading}>
+                        {loading ? 'Đang tải...' : <><Plus size={20} /> Mở ca làm ngay</>}
+                    </button>
                 </div>
             </div>
+        )
+    }
 
-            {/* Tổng doanh thu */}
-            <div style={s.summaryBox}>
-                <div style={s.summaryLabel}>Doanh thu tạm tính</div>
-                <div style={s.summaryValue}>{tongDT.toLocaleString('vi-VN')}đ</div>
-            </div>
+    function renderDangLam() {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                {/* Tổng doanh thu */}
+                <div className="card" style={{ background: 'var(--primary)', color: '#fff', textAlign: 'center', padding: '24px' }}>
+                    <div style={{ fontSize: 14, opacity: 0.9, marginBottom: 8 }}>Doanh thu tạm tính</div>
+                    <div style={{ fontSize: 36, fontWeight: 'bold' }}>{tongDT.toLocaleString('vi-VN')}đ</div>
+                </div>
 
-            {/* Bảng bánh */}
-            <div style={s.tableWrap}>
-                <table style={s.table}>
-                    <thead>
-                        <tr style={{ background: '#fef3c7' }}>
-                            <th style={s.th}>Tên bánh</th>
-                            <th style={s.th}>Giá</th>
-                            <th style={s.th}>Tồn đầu</th>
-                            <th style={s.th}>Xuất (bịch)</th>
-                            <th style={s.th}>Hỏng</th>
-                            <th style={s.th}>Tồn cuối</th>
-                            <th style={s.th}>Bán</th>
-                            <th style={s.th}>Doanh thu</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.map((d, i) => (
-                            <tr key={d.banh_id} style={{ background: i % 2 === 0 ? '#fff' : '#fffbeb' }}>
-                                <td style={s.td}><strong>{d.ten_banh}</strong></td>
-                                <td style={s.tdNum}>{Number(d.gia).toLocaleString('vi-VN')}</td>
-                                <td style={s.tdNum}>{d.ton_dau}</td>
-                                <td style={s.td}>
-                                    <input style={s.inp} type="number" min="0" value={d.so_bich_xuat}
-                                        onChange={e => updateField(d.banh_id, 'so_bich_xuat', e.target.value)} />
-                                </td>
-                                <td style={s.td}>
-                                    <input style={s.inp} type="number" min="0" value={d.hong}
-                                        onChange={e => updateField(d.banh_id, 'hong', e.target.value)} />
-                                </td>
-                                <td style={s.td}>
-                                    <input style={s.inp} type="number" min="0" value={d.ton_cuoi}
-                                        onChange={e => updateField(d.banh_id, 'ton_cuoi', e.target.value)} />
-                                </td>
-                                <td style={{ ...s.tdNum, color: '#059669', fontWeight: 'bold' }}>{tinhBan(d)}</td>
-                                <td style={{ ...s.tdNum, color: '#dc2626', fontWeight: 'bold' }}>
-                                    {tinhDoanhThu(d).toLocaleString('vi-VN')}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                    <tfoot>
-                        <tr style={{ background: '#fef3c7', fontWeight: 'bold' }}>
-                            <td colSpan={7} style={{ ...s.td, textAlign: 'right' }}>TỔNG CỘNG:</td>
-                            <td style={{ ...s.tdNum, color: '#dc2626', fontSize: 16 }}>
-                                {tongDT.toLocaleString('vi-VN')}đ
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+                {/* Bảng bánh */}
+                <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                    <div className="table-wrapper" style={{ margin: 0, border: 'none', boxShadow: 'none' }}>
+                        <table className="table">
+                            <thead>
+                                <tr>
+                                    <th>Tên bánh</th>
+                                    <th>Giá</th>
+                                    <th>Tồn đầu</th>
+                                    <th>Xuất (bịch)</th>
+                                    <th>Hỏng</th>
+                                    <th>Tồn cuối</th>
+                                    <th>Bán</th>
+                                    <th>Doanh thu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.map((d, i) => (
+                                    <tr key={d.banh_id}>
+                                        <td><strong>{d.ten_banh}</strong></td>
+                                        <td style={{ textAlign: 'right' }}>{Number(d.gia).toLocaleString('vi-VN')}</td>
+                                        <td style={{ textAlign: 'center' }}>{d.ton_dau}</td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <input className="input-field" style={{ width: 60, padding: '4px 6px', textAlign: 'center' }} type="number" min="0" value={d.so_bich_xuat}
+                                                onChange={e => updateField(d.banh_id, 'so_bich_xuat', e.target.value)} />
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <input className="input-field" style={{ width: 60, padding: '4px 6px', textAlign: 'center' }} type="number" min="0" value={d.hong}
+                                                onChange={e => updateField(d.banh_id, 'hong', e.target.value)} />
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <input className="input-field" style={{ width: 60, padding: '4px 6px', textAlign: 'center' }} type="number" min="0" value={d.ton_cuoi}
+                                                onChange={e => updateField(d.banh_id, 'ton_cuoi', e.target.value)} />
+                                        </td>
+                                        <td style={{ textAlign: 'center', color: 'var(--success)', fontWeight: 'bold' }}>{tinhBan(d)}</td>
+                                        <td style={{ textAlign: 'right', color: 'var(--danger)', fontWeight: 'bold' }}>
+                                            {tinhDoanhThu(d).toLocaleString('vi-VN')}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                            <tfoot>
+                                <tr style={{ background: 'var(--warning-bg)', fontWeight: 'bold' }}>
+                                    <td colSpan={7} style={{ textAlign: 'right' }}>TỔNG CỘNG:</td>
+                                    <td style={{ textAlign: 'right', color: 'var(--danger)', fontSize: 16 }}>
+                                        {tongDT.toLocaleString('vi-VN')}đ
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
 
-            {/* Thu tiền */}
-            <div style={s.card}>
-                <h3 style={s.cardTitle}>💰 Thu tiền ca {loaiCa === 'sang' ? 'Sáng' : 'Chiều'}</h3>
-                <div style={s.moneyRow}>
-                    <label style={s.moneyLabel}>🛵 Grab:</label>
-                    <input style={s.moneyInput} type="number" min="0" value={grab}
-                        onChange={e => setGrab(e.target.value)} />
-                </div>
-                <div style={s.moneyRow}>
-                    <label style={s.moneyLabel}>🏦 Chuyển khoản:</label>
-                    <input style={s.moneyInput} type="number" min="0" value={chuyenKhoan}
-                        onChange={e => setChuyenKhoan(e.target.value)} />
-                </div>
-                <div style={s.moneyRow}>
-                    <label style={s.moneyLabel}>💵 Tiền mặt:</label>
-                    <input style={s.moneyInput} type="number" min="0" value={tienMat}
-                        onChange={e => setTienMat(e.target.value)} />
-                </div>
-                <div style={{ ...s.moneyRow, borderTop: '2px solid #e5e7eb', paddingTop: 8, marginTop: 4 }}>
-                    <label style={{ ...s.moneyLabel, fontWeight: 'bold' }}>Tổng thu:</label>
-                    <span style={{ fontSize: 18, fontWeight: 'bold', color: '#059669' }}>
-                        {tongThu.toLocaleString('vi-VN')}đ
-                    </span>
-                </div>
-            </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+                    {/* Phát sinh & Ghi chú */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <div className="card">
+                            <h3 className="card-title">💸 Thu chi phát sinh <InfoTooltip text="Ghi nhận các khoản tiền thu thêm hoặc chi ra trong ca (VD: mua đá, tiền rác...)" /></h3>
+                            {phatSinh.map((ps, i) => (
+                                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                                    <span style={{
+                                        padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 'bold',
+                                        background: ps.loai === 'thu' ? 'var(--success-bg)' : 'var(--danger-bg)',
+                                        color: ps.loai === 'thu' ? 'var(--success)' : 'var(--danger)'
+                                    }}>
+                                        {ps.loai === 'thu' ? '+ Thu' : '- Chi'}
+                                    </span>
+                                    <span style={{ flex: 1 }}>{ps.ten}</span>
+                                    <span style={{ fontWeight: 'bold' }}>
+                                        {Number(ps.so_tien).toLocaleString('vi-VN')}đ
+                                    </span>
+                                    <button onClick={() => setPhatSinh(prev => prev.filter((_, j) => j !== i))}
+                                        className="btn btn-ghost" style={{ padding: 4, color: 'var(--danger)' }}>
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                            ))}
+                            <ThemPhatSinh onAdd={ps => setPhatSinh(prev => [...prev, ps])} />
+                        </div>
 
-            <div style={s.card}>
-                <h3 style={s.cardTitle}>🤝 Bàn giao tiền mặt</h3>
-                <div style={s.moneyRow}>
-                    <label style={s.moneyLabel}>Tiền mặt thực tế:</label>
-                    <span style={{ fontSize: 16, fontWeight: 'bold', color: '#374151' }}>
-                        {tienMatThucTe.toLocaleString('vi-VN')}đ
-                    </span>
-                </div>
-                <div style={s.moneyRow}>
-                    <label style={s.moneyLabel}>Số tiền bàn giao:</label>
-                    <input style={s.moneyInput} type="number" min="0" value={banGiao}
-                        onChange={e => setBanGiao(e.target.value)} />
-                </div>
-                <div style={{ ...s.moneyRow, marginTop: 8 }}>
-                    <label style={s.moneyLabel}>Thiếu / Dư:</label>
-                    <span style={{ fontSize: 18, fontWeight: 'bold', color: thieuDu >= 0 ? '#059669' : '#dc2626' }}>
-                        {thieuDu >= 0 ? '+' : ''}{thieuDu.toLocaleString('vi-VN')}đ
-                    </span>
-                </div>
-            </div>
+                        <div className="card">
+                            <h3 className="card-title">📝 Ghi chú ca <InfoTooltip text="Để lại tin nhắn hoặc tình trạng ca làm cho quản lý/ca sau" /></h3>
+                            <textarea
+                                className="input-field"
+                                style={{ minHeight: 80, resize: 'vertical' }}
+                                placeholder="VD: Hết bánh chay lúc 10h, máy POS lỗi..."
+                                value={ghiChu}
+                                onChange={e => setGhiChu(e.target.value)}
+                            />
+                        </div>
+                    </div>
 
-            {msg && <div style={s.successMsg}>{msg}</div>}
-            {/* Thu chi phát sinh */}
-            <div style={s.card}>
-                <h3 style={s.cardTitle}>💸 Thu chi phát sinh</h3>
+                    {/* Thu tiền & Bàn giao */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <div className="card" style={{ background: 'var(--primary-light)', border: 'none' }}>
+                            <h3 className="card-title">💰 Thu tiền ca {loaiCa === 'sang' ? 'Sáng' : 'Chiều'}</h3>
+                            <div className="flex-between" style={{ marginBottom: 12 }}>
+                                <label style={{ fontWeight: '600' }}>🛵 Grab:</label>
+                                <input className="input-field" style={{ width: 140, textAlign: 'right' }} type="number" min="0" value={grab} onChange={e => setGrab(e.target.value)} />
+                            </div>
+                            <div className="flex-between" style={{ marginBottom: 12 }}>
+                                <label style={{ fontWeight: '600' }}>🏦 Chuyển khoản:</label>
+                                <input className="input-field" style={{ width: 140, textAlign: 'right' }} type="number" min="0" value={chuyenKhoan} onChange={e => setChuyenKhoan(e.target.value)} />
+                            </div>
+                            <div className="flex-between" style={{ marginBottom: 12 }}>
+                                <label style={{ fontWeight: '600' }}>💵 Tiền mặt:</label>
+                                <input className="input-field" style={{ width: 140, textAlign: 'right' }} type="number" min="0" value={tienMat} onChange={e => setTienMat(e.target.value)} />
+                            </div>
+                            <div className="flex-between" style={{ borderTop: '2px solid var(--gray-200)', paddingTop: 12 }}>
+                                <label style={{ fontWeight: 'bold' }}>Tổng thu:</label>
+                                <span style={{ fontSize: 18, fontWeight: 'bold', color: 'var(--success)' }}>
+                                    {tongThu.toLocaleString('vi-VN')}đ
+                                </span>
+                            </div>
+                        </div>
 
-                {phatSinh.map((ps, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
-                        <span style={{
-                            padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 'bold',
-                            background: ps.loai === 'thu' ? '#d1fae5' : '#fee2e2',
-                            color: ps.loai === 'thu' ? '#059669' : '#dc2626'
-                        }}>
-                            {ps.loai === 'thu' ? '+ Thu' : '- Chi'}
-                        </span>
-                        <span style={{ flex: 1 }}>{ps.ten}</span>
-                        <span style={{ fontWeight: 'bold' }}>
-                            {Number(ps.so_tien).toLocaleString('vi-VN')}đ
-                        </span>
-                        <button onClick={() => setPhatSinh(prev => prev.filter((_, j) => j !== i))}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#dc2626' }}>
-                            ✕
+                        <div className="card">
+                            <h3 className="card-title">🤝 Bàn giao tiền mặt <InfoTooltip text="Số tiền mặt thực tế bạn để lại tại quán sau khi kết thúc ca" /></h3>
+                            <div className="flex-between" style={{ marginBottom: 12 }}>
+                                <label>Tiền mặt thực tế:</label>
+                                <span style={{ fontSize: 16, fontWeight: 'bold', color: 'var(--text-main)' }}>
+                                    {tienMatThucTe.toLocaleString('vi-VN')}đ
+                                </span>
+                            </div>
+                            <div className="flex-between" style={{ marginBottom: 12 }}>
+                                <label style={{ fontWeight: '600' }}>Số tiền bàn giao:</label>
+                                <input className="input-field" style={{ width: 140, textAlign: 'right' }} type="number" min="0" value={banGiao} onChange={e => setBanGiao(e.target.value)} />
+                            </div>
+                            <div className="flex-between" style={{ borderTop: '2px solid var(--gray-200)', paddingTop: 12 }}>
+                                <label style={{ fontWeight: 'bold' }}>Thiếu / Dư:</label>
+                                <span style={{ fontSize: 18, fontWeight: 'bold', color: thieuDu >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                                    {thieuDu >= 0 ? '+' : ''}{thieuDu.toLocaleString('vi-VN')}đ
+                                </span>
+                            </div>
+                        </div>
+
+                        <button className="btn btn-primary" style={{ width: '100%', padding: '16px', fontSize: 16, background: 'var(--danger)' }}
+                            onClick={() => setShowXacNhan(true)}>
+                            ⏹ Kết thúc & Xem tóm tắt
                         </button>
                     </div>
-                ))}
+                </div>
 
-                {/* Form thêm */}
-                <ThemPhatSinh onAdd={ps => setPhatSinh(prev => [...prev, ps])} />
+                {showXacNhan && (
+                    <XacNhanCa
+                        data={data} tongDT={tongDT}
+                        grab={grab} chuyenKhoan={chuyenKhoan}
+                        tienMat={tienMat} banGiao={banGiao}
+                        loading={loading}
+                        onConfirm={ketThucCa}
+                        onCancel={() => setShowXacNhan(false)}
+                    />
+                )}
+            </div>
+        )
+    }
+
+    const [lichSuKey, setLichSuKey] = useState(0)
+
+    return (
+        <SidebarLayout menuItems={MENU} activeTab={tab} onTabChange={setTab}>
+            <div style={{ marginBottom: 24 }}>
+                <h1 style={{ margin: 0 }}>Chào, {user.ten} 👋</h1>
+                <p style={{ color: 'var(--text-muted)' }}>
+                    {step === 'dang_lam' ? `Đang trong ca làm việc: ${loaiCa === 'sang' ? 'Ca Sáng' : 'Ca Chiều'}` : 'Chúc bạn một ca làm việc vui vẻ và suôn sẻ!'}
+                </p>
             </div>
 
-
-
-            {/* Ghi chú */}
-            <div style={s.card}>
-                <h3 style={s.cardTitle}>📝 Ghi chú ca</h3>
-                <textarea
-                    style={{
-                        width: '100%', padding: '10px 12px', fontSize: 15, borderRadius: 10,
-                        border: '2px solid #e5e7eb', resize: 'vertical', minHeight: 80, boxSizing: 'border-box'
-                    }}
-                    placeholder="VD: Hết bánh chay lúc 10h, máy POS lỗi..."
-                    value={ghiChu}
-                    onChange={e => setGhiChu(e.target.value)}
-                />
-            </div>
-            {/* nut ket thuc ca*/}
-            <button style={{ ...s.btnMain, background: '#dc2626' }}
-                onClick={() => setShowXacNhan(true)}>
-                ⏹ Kết thúc & Xem tóm tắt
-            </button>
-
-            {showXacNhan && (
-                <XacNhanCa
-                    data={data} tongDT={tongDT}
-                    grab={grab} chuyenKhoan={chuyenKhoan}
-                    tienMat={tienMat} banGiao={banGiao}
-                    loading={loading}
-                    onConfirm={ketThucCa}
-                    onCancel={() => setShowXacNhan(false)}
-                />
+            {tab === 'lam_viec' && (
+                step === 'chon_ca' ? renderChonCa() : renderDangLam()
             )}
 
-            {showDoiMK && <DoiMatKhau onClose={() => setShowDoiMK(false)} />}
-        </div>
-    )
-}
+            {tab === 'bao_cao' && <BaoCao nhanVienId={user.id} />}
+            {tab === 'lich_su' && <LichSu key={lichSuKey} onCaClick={ca => setViewCaId(ca.id)} />}
+            {tab === 'ca_nhan' && <CaNhan />}
 
-const s = {
-    page: { maxWidth: 900, margin: '0 auto', padding: 16, fontFamily: 'sans-serif' },
-    header: {
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        color: '#fff', padding: '12px 16px', borderRadius: 12, marginBottom: 16
-    },
-    logoutBtn: {
-        background: 'rgba(0,0,0,0.2)', color: '#fff', border: 'none',
-        borderRadius: 8, padding: '6px 12px', cursor: 'pointer'
-    },
-    summaryBox: {
-        background: '#f59e0b', color: '#fff', borderRadius: 16,
-        padding: '20px 24px', textAlign: 'center', marginBottom: 16
-    },
-    summaryLabel: { fontSize: 14, opacity: 0.9 },
-    summaryValue: { fontSize: 36, fontWeight: 'bold' },
-    tableWrap: { overflowX: 'auto', marginBottom: 16 },
-    table: { width: '100%', borderCollapse: 'collapse', fontSize: 14 },
-    th: { padding: '10px 8px', textAlign: 'center', border: '1px solid #e5e7eb', fontSize: 13 },
-    td: { padding: '8px', border: '1px solid #e5e7eb', textAlign: 'center' },
-    tdNum: { padding: '8px', border: '1px solid #e5e7eb', textAlign: 'right' },
-    inp: {
-        width: 60, padding: '4px 6px', fontSize: 14, borderRadius: 6,
-        border: '2px solid #f59e0b', textAlign: 'center'
-    },
-    card: {
-        background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-    },
-    cardTitle: { margin: '0 0 12px', color: '#92400e', fontSize: 16 },
-    moneyRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-    moneyLabel: { fontSize: 15, color: '#374151' },
-    moneyInput: {
-        width: 140, padding: '8px 12px', fontSize: 16, borderRadius: 8,
-        border: '2px solid #e5e7eb', textAlign: 'right'
-    },
-    caBtn: {
-        width: '100%', padding: 18, fontSize: 20, borderRadius: 12, marginBottom: 12,
-        border: '3px solid #e5e7eb', background: '#fff', cursor: 'pointer'
-    },
-    caBtnActive: { border: '3px solid #f59e0b', background: '#fff8f0' },
-    btnMain: {
-        width: '100%', padding: 18, fontSize: 18, fontWeight: 'bold',
-        background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 12,
-        cursor: 'pointer', marginTop: 8, marginBottom: 24
-    },
-    successMsg: {
-        background: '#d1fae5', color: '#065f46', padding: 12,
-        borderRadius: 10, textAlign: 'center', marginBottom: 12, fontWeight: 'bold'
-    },
+            {viewCaId && (
+                <ChiTietCaModal 
+                    caId={viewCaId} 
+                    onClose={(changed) => {
+                        setViewCaId(null)
+                        if (changed) setLichSuKey(k => k + 1)
+                    }} 
+                    user={user} 
+                    token={token} 
+                />
+            )}
+        </SidebarLayout>
+    )
 }

@@ -18,9 +18,9 @@ export default function XacNhanCa({ data, tongDT, grab, chuyenKhoan, tienMat, ba
                     <div style={s.row}><span>🏦 Chuyển khoản:</span><strong>{Number(chuyenKhoan).toLocaleString('vi-VN')}đ</strong></div>
                     <div style={s.row}><span>💵 Tiền mặt thực tế:</span><strong>{tienMatThucTe.toLocaleString('vi-VN')}đ</strong></div>
                     <div style={s.row}><span>🤝 Bàn giao:</span><strong>{Number(banGiao).toLocaleString('vi-VN')}đ</strong></div>
-                    <div style={{ ...s.row, borderTop: '2px solid #e5e7eb', paddingTop: 8, marginTop: 4 }}>
+                    <div style={{ ...s.row, borderTop: '2px solid var(--gray-200)', paddingTop: 8, marginTop: 4 }}>
                         <span>Thiếu / Dư:</span>
-                        <strong style={{ color: thieuDu >= 0 ? '#059669' : '#dc2626', fontSize: 18 }}>
+                        <strong style={{ color: thieuDu >= 0 ? 'var(--success)' : 'var(--danger)', fontSize: 18 }}>
                             {thieuDu >= 0 ? '+' : ''}{thieuDu.toLocaleString('vi-VN')}đ
                         </strong>
                     </div>
@@ -34,7 +34,7 @@ export default function XacNhanCa({ data, tongDT, grab, chuyenKhoan, tienMat, ba
                         return ban > 0 ? (
                             <div key={d.banh_id} style={s.row}>
                                 <span>{d.ten_banh}:</span>
-                                <strong style={{ color: '#059669' }}>{ban} cái</strong>
+                                <strong style={{ color: 'var(--success)' }}>{ban} cái</strong>
                             </div>
                         ) : null
                     })}
@@ -60,18 +60,18 @@ const s = {
         background: '#fff', borderRadius: 16, padding: 20, width: '100%', maxWidth: 400,
         maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12
     },
-    title: { margin: 0, textAlign: 'center', color: '#374151', fontSize: 18 },
-    section: { background: '#f9fafb', borderRadius: 12, padding: 12 },
-    sectionTitle: { fontSize: 13, color: '#6b7280', marginBottom: 8 },
-    bigNum: { fontSize: 28, fontWeight: 'bold', color: '#dc2626', textAlign: 'center' },
+    title: { margin: 0, textAlign: 'center', color: 'var(--text-main)', fontSize: 18 },
+    section: { background: 'var(--primary-light)', borderRadius: 12, padding: 12 },
+    sectionTitle: { fontSize: 13, color: 'var(--text-muted)', marginBottom: 8 },
+    bigNum: { fontSize: 28, fontWeight: 'bold', color: 'var(--danger)', textAlign: 'center' },
     row: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, fontSize: 15 },
     btnRow: { display: 'flex', gap: 8 },
     btnCancel: {
-        flex: 1, padding: 14, borderRadius: 10, border: '2px solid #e5e7eb',
+        flex: 1, padding: 14, borderRadius: 10, border: '2px solid var(--gray-200)',
         background: '#fff', cursor: 'pointer', fontSize: 15
     },
     btnConfirm: {
         flex: 1, padding: 14, borderRadius: 10, border: 'none',
-        background: '#059669', color: '#fff', cursor: 'pointer', fontSize: 15, fontWeight: 'bold'
+        background: 'var(--success)', color: '#fff', cursor: 'pointer', fontSize: 15, fontWeight: 'bold'
     },
 }

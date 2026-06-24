@@ -4,7 +4,7 @@ import axios from 'axios'
 
 const API = import.meta.env.VITE_API_URL
 
-export default function LichSu() {
+export default function LichSu({ onCaClick }) {
     const { token } = useAuth()
     const [lichSu, setLichSu] = useState([])
     const [nhanViens, setNhanViens] = useState([])
@@ -33,9 +33,9 @@ export default function LichSu() {
     }
 
     return (
-        <div style={s.wrap}>
+        <div style={s.wrap} className="animate-fade-in">
             {/* Bộ lọc */}
-            <div style={s.filterBox}>
+            <div style={s.filterBox} className="animate-slide-up">
                 <div style={s.filterRow}>
                     <label style={s.label}>Từ ngày:</label>
                     <input type="date" value={tuNgay} onChange={e => setTuNgay(e.target.value)} style={s.dateInput} />
@@ -57,10 +57,18 @@ export default function LichSu() {
             </div>
 
             {/* Danh sách */}
-            {lichSu.length === 0
-                ? <p style={{ textAlign: 'center', color: '#9ca3af' }}>Không có dữ liệu</p>
-                : lichSu.map((ca, i) => (
-                    <div key={i} style={s.caCard}>
+            {loading ? (
+                <p style={{ textAlign: 'center', color: 'var(--text-muted)' }} className="animate-fade-in">Đang tải dữ liệu...</p>
+            ) : lichSu.length === 0 ? (
+                <p style={{ textAlign: 'center', color: 'var(--text-muted)' }} className="animate-fade-in">Không có dữ liệu</p>
+            ) : (
+                lichSu.map((ca, i) => (
+                    <div 
+                        key={i} 
+                        className={`animate-slide-right stagger-${(i % 5) + 1}`}
+                        style={{ ...s.caCard, cursor: onCaClick ? 'pointer' : 'default' }} 
+                        onClick={() => onCaClick && onCaClick(ca)}
+                    >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
                                 <div style={s.ngay}>📅 {ca.ngay}</div>
@@ -77,13 +85,13 @@ export default function LichSu() {
                             <span>🛵 {Number(ca.grab || 0).toLocaleString('vi-VN')}đ</span>
                             <span>🏦 {Number(ca.chuyen_khoan || 0).toLocaleString('vi-VN')}đ</span>
                             <span>💵 {Number(ca.tien_mat || 0).toLocaleString('vi-VN')}đ</span>
-                            <span style={{ color: Number(ca.thieu_du || 0) >= 0 ? '#059669' : '#dc2626', fontWeight: 'bold' }}>
+                            <span style={{ color: Number(ca.thieu_du || 0) >= 0 ? 'var(--success)' : 'var(--danger)', fontWeight: 'bold' }}>
                                 {Number(ca.thieu_du || 0) >= 0 ? 'Dư' : 'Thiếu'}: {Math.abs(Number(ca.thieu_du || 0)).toLocaleString('vi-VN')}đ
                             </span>
                         </div>
                     </div>
                 ))
-            }
+            )}
         </div>
     )
 }
@@ -92,25 +100,25 @@ const s = {
     wrap: { padding: '0 0 24px' },
     filterBox: {
         background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'flex-end'
+        border: '2px solid var(--gray-200)', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'flex-end'
     },
     filterRow: { display: 'flex', flexDirection: 'column', gap: 4 },
-    label: { fontSize: 13, color: '#6b7280', fontWeight: 'bold' },
-    dateInput: { padding: '8px 12px', fontSize: 15, borderRadius: 8, border: '2px solid #e5e7eb' },
+    label: { fontSize: 13, color: 'var(--text-muted)', fontWeight: 'bold' },
+    dateInput: { padding: '8px 12px', fontSize: 15, borderRadius: 8, border: '2px solid var(--gray-200)' },
     btnLoad: {
         padding: '8px 20px', fontSize: 15, borderRadius: 8, border: 'none',
-        background: '#7c3aed', color: '#fff', cursor: 'pointer', fontWeight: 'bold'
+        background: 'var(--accent)', color: '#fff', cursor: 'pointer', fontWeight: 'bold'
     },
     caCard: {
         background: '#fff', borderRadius: 12, padding: 16, marginBottom: 10,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        border: '2px solid var(--gray-200)'
     },
-    ngay: { fontWeight: 'bold', fontSize: 16, color: '#374151' },
-    info: { color: '#6b7280', fontSize: 14, marginTop: 2 },
-    dt: { fontWeight: 'bold', fontSize: 18, color: '#dc2626' },
-    badge: { fontSize: 12, color: '#059669', marginTop: 4 },
+    ngay: { fontWeight: 'bold', fontSize: 16, color: 'var(--text-main)' },
+    info: { color: 'var(--text-muted)', fontSize: 14, marginTop: 2 },
+    dt: { fontWeight: 'bold', fontSize: 18, color: 'var(--danger)' },
+    badge: { fontSize: 12, color: 'var(--success)', marginTop: 4 },
     moneyRow: {
         display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10,
-        paddingTop: 10, borderTop: '1px solid #f3f4f6', fontSize: 13, color: '#374151'
+        paddingTop: 10, borderTop: '1px solid var(--primary-light)', fontSize: 13, color: 'var(--text-main)'
     },
 }

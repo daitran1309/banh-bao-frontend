@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
+import { LogIn } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -35,17 +36,17 @@ export default function Login() {
     }
 
     return (
-        <div style={styles.container}>
-            <div style={styles.card}>
-                <div style={styles.logoContainer}>
-                    <img src="/logo.png" alt="Logo" style={styles.logoImg} />
+        <div className="app-container center-flex">
+            <div className="card" style={{ width: '100%', maxWidth: 360, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div className="center-flex mb-2">
+                    <img src="/logo.png" alt="Logo" style={{ height: 120, objectFit: 'contain' }} />
                 </div>
-                <h2 style={styles.title}>Chốt Ca Bao Tea</h2>
+                <h2 className="text-center" style={{ color: 'var(--cta-bg)', margin: 0 }}>Chốt Ca Bao Tea</h2>
 
                 {loadingDS
-                    ? <p style={{ textAlign: 'center', color: '#6b7280' }}>Đang tải danh sách...</p>
+                    ? <p className="text-center text-muted">Đang tải danh sách...</p>
                     : <select
-                        style={styles.input}
+                        className="input-field select-field"
                         value={ten}
                         onChange={e => setTen(e.target.value)}
                     >
@@ -57,7 +58,7 @@ export default function Login() {
                 }
 
                 <input
-                    style={styles.input}
+                    className="input-field"
                     type="password"
                     placeholder="Mật khẩu"
                     value={mat_khau}
@@ -65,44 +66,18 @@ export default function Login() {
                     onKeyDown={e => e.key === 'Enter' && handleLogin()}
                 />
 
-                {error && <p style={styles.error}>{error}</p>}
+                {error && <p className="text-danger text-center">{error}</p>}
 
                 <button
-                    style={loading ? { ...styles.btn, opacity: 0.6 } : styles.btn}
+                    className="btn btn-primary"
+                    style={{ marginTop: 8, padding: '16px', fontSize: '1.1rem' }}
                     onClick={handleLogin}
                     disabled={loading || loadingDS}
                 >
-                    {loading ? 'Đang vào...' : '🚀 Đăng nhập'}
+                    <LogIn size={20} />
+                    {loading ? 'Đang vào...' : 'Đăng nhập'}
                 </button>
             </div>
         </div>
     )
-}
-
-const styles = {
-    container: {
-        minHeight: '100vh', display: 'flex',
-        alignItems: 'center', justifyContent: 'center',
-        background: '#fff8f0', padding: 16
-    },
-    card: {
-        background: '#fff', borderRadius: 16,
-        padding: 32, width: '100%', maxWidth: 360,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-        display: 'flex', flexDirection: 'column', gap: 12
-    },
-    logoContainer: { display: 'flex', justifyContent: 'center', marginBottom: 8 },
-    logoImg: { height: 120, objectFit: 'contain' },
-    title: { textAlign: 'center', margin: 0, color: '#d97706' },
-    input: {
-        padding: '14px 16px', fontSize: 16, borderRadius: 10,
-        border: '2px solid #e5e7eb', outline: 'none', width: '100%',
-        boxSizing: 'border-box'
-    },
-    btn: {
-        padding: '16px', fontSize: 18, fontWeight: 'bold',
-        background: '#f59e0b', color: '#fff', border: 'none',
-        borderRadius: 12, cursor: 'pointer', marginTop: 8
-    },
-    error: { color: 'red', textAlign: 'center', margin: 0 }
-}
+}
