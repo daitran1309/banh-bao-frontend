@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
+import { StaggerContainer, BubbleItem } from '../components/BubbleAnimation'
+import ChiTietCaModal from '../components/ChiTietCaModal'
+import { AnimatePresence } from 'framer-motion'
 
 const API = import.meta.env.VITE_API_URL
 
-export default function LichSu({ onCaClick }) {
-    const { token } = useAuth()
+export default function LichSu() {
+    const { token, user } = useAuth()
+    const [expandedId, setExpandedId] = useState(null)
     const [lichSu, setLichSu] = useState([])
     const [nhanViens, setNhanViens] = useState([])
     const [locNV, setLocNV] = useState('')
@@ -33,9 +37,9 @@ export default function LichSu({ onCaClick }) {
     }
 
     return (
-        <div style={s.wrap} className="animate-fade-in">
+        <StaggerContainer delay={0.1} style={s.wrap}>
             {/* Bộ lọc */}
-            <div className="card animate-slide-up" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end', marginBottom: 24, padding: 20 }}>
+            <BubbleItem className="card" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end', marginBottom: 24, padding: 20 }}>
                 <div style={s.filterRow}>
                     <label style={s.label}>Từ ngày:</label>
                     <input type="date" value={tuNgay} onChange={e => setTuNgay(e.target.value)} className="input-field" style={{ width: 'auto' }} />
@@ -54,7 +58,7 @@ export default function LichSu({ onCaClick }) {
                 <button className="btn btn-primary" onClick={loadLichSu} disabled={loading} style={{ padding: '12px 24px' }}>
                     {loading ? 'Đang tải...' : '🔍 Lọc dữ liệu'}
                 </button>
-            </div>
+            </BubbleItem>
 
             {/* Danh sách */}
             {loading ? (
@@ -64,47 +68,67 @@ export default function LichSu({ onCaClick }) {
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                     {lichSu.map((ca, i) => (
-                        <div 
+                        <BubbleItem 
                             key={i} 
-                            className={`card animate-slide-right stagger-${(i % 5) + 1}`}
-                            style={{ ...s.caCard, cursor: onCaClick ? 'pointer' : 'default', padding: '20px 24px', marginBottom: 0 }} 
-                            onClick={() => onCaClick && onCaClick(ca)}
+                            delay={(i % 5) * 0.1}
+                            className="card"
+                            style={{ ...s.caCard, padding: 0, marginBottom: 0, overflow: 'hidden' }} 
                         >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <div style={s.ngay}>📅 {ca.ngay}</div>
-                                    <div style={s.info}>
-                                        <span style={{ color: ca.loai_ca === 'sang' ? 'var(--warning)' : 'var(--accent)' }}>
-                                            {ca.loai_ca === 'sang' ? '☀️ Ca Sáng' : '🌙 Ca Chiều'}
-                                        </span>
-                                        <span style={{ margin: '0 8px', color: 'var(--gray-200)' }}>|</span>
-                                        <span style={{ color: 'var(--text-main)' }}>{ca.nhan_vien}</span>
+                            <div 
+                                style={{ padding: '20px 24px', cursor: 'pointer', transition: 'background 0.2s', background: expandedId === ca.id ? 'rgba(255,255,255,0.03)' : 'transparent' }} 
+                                onClick={() => setExpandedId(expandedId === ca.id ? null : ca.id)}
+                            >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                        <div style={s.ngay}>📅 {ca.ngay}</div>
+                                        <div style={s.info}>
+                                            <span style={{ color: ca.loai_ca === 'sang' ? 'var(--warning)' : 'var(--accent)' }}>
+                                                {ca.loai_ca === 'sang' ? '☀️ Ca Sáng' : '🌙 Ca Chiều'}
+                                            </span>
+                                            <span style={{ margin: '0 8px', color: 'var(--gray-200)' }}>|</span>
+                                            <span style={{ color: 'var(--text-main)' }}>{ca.nhan_vien}</span>
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={s.dt}>{Number(ca.tong_doanh_thu).toLocaleString('vi-VN')}đ</div>
+                                        <div className="badge" style={{ background: 'var(--success-bg)', color: 'var(--success)', marginTop: 8 }}>✅ Đã chốt</div>
                                     </div>
                                 </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={s.dt}>{Number(ca.tong_doanh_thu).toLocaleString('vi-VN')}đ</div>
-                                    <div className="badge" style={{ background: 'var(--success-bg)', color: 'var(--success)', marginTop: 8 }}>✅ Đã chốt</div>
+                                <div style={s.moneyRow}>
+                                    <span style={s.moneyItem}>🛵 {Number(ca.grab || 0).toLocaleString('vi-VN')}đ</span>
+                                    <span style={s.moneyItem}>🏦 {Number(ca.chuyen_khoan || 0).toLocaleString('vi-VN')}đ</span>
+                                    <span style={s.moneyItem}>💵 {Number(ca.tien_mat || 0).toLocaleString('vi-VN')}đ</span>
+                                    <span style={{ 
+                                        ...s.moneyItem,
+                                        background: Number(ca.thieu_du || 0) >= 0 ? 'var(--success-bg)' : 'var(--danger-bg)',
+                                        color: Number(ca.thieu_du || 0) >= 0 ? 'var(--success)' : 'var(--danger)',
+                                        border: 'none',
+                                        fontWeight: '700'
+                                    }}>
+                                        {Number(ca.thieu_du || 0) >= 0 ? 'Dư' : 'Thiếu'}: {Math.abs(Number(ca.thieu_du || 0)).toLocaleString('vi-VN')}đ
+                                    </span>
                                 </div>
                             </div>
-                            <div style={s.moneyRow}>
-                                <span style={s.moneyItem}>🛵 {Number(ca.grab || 0).toLocaleString('vi-VN')}đ</span>
-                                <span style={s.moneyItem}>🏦 {Number(ca.chuyen_khoan || 0).toLocaleString('vi-VN')}đ</span>
-                                <span style={s.moneyItem}>💵 {Number(ca.tien_mat || 0).toLocaleString('vi-VN')}đ</span>
-                                <span style={{ 
-                                    ...s.moneyItem,
-                                    background: Number(ca.thieu_du || 0) >= 0 ? 'var(--success-bg)' : 'var(--danger-bg)',
-                                    color: Number(ca.thieu_du || 0) >= 0 ? 'var(--success)' : 'var(--danger)',
-                                    border: 'none',
-                                    fontWeight: '700'
-                                }}>
-                                    {Number(ca.thieu_du || 0) >= 0 ? 'Dư' : 'Thiếu'}: {Math.abs(Number(ca.thieu_du || 0)).toLocaleString('vi-VN')}đ
-                                </span>
-                            </div>
-                        </div>
+                            
+                            <AnimatePresence>
+                                {expandedId === ca.id && (
+                                    <ChiTietCaModal 
+                                        caId={ca.id} 
+                                        user={user} 
+                                        token={token} 
+                                        inline={true} 
+                                        onClose={(changed) => {
+                                            if (changed) loadLichSu();
+                                            setExpandedId(null);
+                                        }} 
+                                    />
+                                )}
+                            </AnimatePresence>
+                        </BubbleItem>
                     ))}
                 </div>
             )}
-        </div>
+        </StaggerContainer>
     )
 }
 

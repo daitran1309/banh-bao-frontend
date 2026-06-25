@@ -9,6 +9,7 @@ import CaNhan from './CaNhan'
 import BaoCao from './BaoCao'
 import ChiTietCaModal from '../components/ChiTietCaModal'
 import InfoTooltip from '../components/InfoTooltip'
+import { StaggerContainer, BubbleItem } from '../components/BubbleAnimation'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -50,6 +51,7 @@ export default function NhanVien() {
     const [tab, setTab] = useState('lam_viec')
 
     const [step, setStep] = useState('chon_ca')
+    const [isChecking, setIsChecking] = useState(true)
     const [loaiCa, setLoaiCa] = useState('sang') // default to sang
     const [caId, setCaId] = useState(null)
     const [data, setData] = useState([])
@@ -86,8 +88,15 @@ export default function NhanVien() {
                     }
                 } catch (e) {
                     console.error('Lỗi load lại dữ liệu:', e)
+                } finally {
+                    setIsChecking(false)
                 }
+            } else {
+                setIsChecking(false)
             }
+        }).catch(err => {
+            console.error(err)
+            setIsChecking(false)
         })
     }, [])
 
@@ -156,14 +165,14 @@ export default function NhanVien() {
 
     function renderChonCa() {
         return (
-            <div className="card animate-fade-in text-center" style={{ padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
-                {msg && <div style={{ background: 'var(--success-bg)', color: 'var(--success)', padding: 12, borderRadius: 10, textAlign: 'center', fontWeight: 'bold', width: '100%', maxWidth: 400 }}>{msg}</div>}
+            <StaggerContainer delay={0.1} className="card text-center" style={{ padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+                {msg && <BubbleItem style={{ background: 'var(--success-bg)', color: 'var(--success)', padding: 12, borderRadius: 10, textAlign: 'center', fontWeight: 'bold', width: '100%', maxWidth: 400 }}>{msg}</BubbleItem>}
 
-                <div style={{ width: 80, height: 80, background: 'rgba(108, 93, 211, 0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', boxShadow: '0 0 20px rgba(108, 93, 211, 0.3)' }}>
+                <BubbleItem style={{ width: 80, height: 80, background: 'rgba(108, 93, 211, 0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', boxShadow: '0 0 20px rgba(108, 93, 211, 0.3)' }}>
                     <Briefcase size={40} />
-                </div>
-                <h2 style={{ color: 'var(--text-main)' }}>Chưa có ca làm việc nào</h2>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+                </BubbleItem>
+                <BubbleItem><h2 style={{ color: 'var(--text-main)' }}>Chưa có ca làm việc nào</h2></BubbleItem>
+                <BubbleItem style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
                     <select className="input-field select-field" value={loaiCa} onChange={e => setLoaiCa(e.target.value)} style={{ width: 180 }}>
                         <option value="sang">☀️ Ca Sáng</option>
                         <option value="chieu">🌙 Ca Chiều</option>
@@ -171,22 +180,23 @@ export default function NhanVien() {
                     <button className="btn btn-primary" onClick={batDauCa} disabled={loading} style={{ padding: '14px 24px' }}>
                         {loading ? 'Đang tải...' : <><Plus size={20} /> Mở ca làm ngay</>}
                     </button>
-                </div>
-            </div>
+                </BubbleItem>
+            </StaggerContainer>
         )
     }
 
     function renderDangLam() {
         return (
-            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <>
+            <StaggerContainer delay={0.1} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 {/* Tổng doanh thu */}
-                <div className="card animate-slide-up" style={{ background: 'linear-gradient(135deg, rgba(108, 93, 211, 0.3) 0%, rgba(108, 93, 211, 0.1) 100%)', border: '1px solid rgba(108, 93, 211, 0.4)', color: 'var(--text-main)', textAlign: 'center', padding: '32px' }}>
+                <BubbleItem className="card" delay={0.1} style={{ background: 'linear-gradient(135deg, rgba(108, 93, 211, 0.3) 0%, rgba(108, 93, 211, 0.1) 100%)', border: '1px solid rgba(108, 93, 211, 0.4)', color: 'var(--text-main)', textAlign: 'center', padding: '32px' }}>
                     <div style={{ fontSize: 16, color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1, fontWeight: '600' }}>Doanh thu tạm tính</div>
                     <div style={{ fontSize: 42, fontWeight: '800', color: 'var(--primary)', textShadow: '0 0 20px rgba(108, 93, 211, 0.6)' }}>{tongDT.toLocaleString('vi-VN')}đ</div>
-                </div>
+                </BubbleItem>
 
                 {/* Bảng bánh */}
-                <div className="card animate-slide-up stagger-1" style={{ padding: 0, overflow: 'hidden' }}>
+                <BubbleItem className="card" delay={0.2} style={{ padding: 0, overflow: 'hidden' }}>
                     <div className="table-wrapper" style={{ margin: 0, border: 'none', background: 'transparent' }}>
                         <table className="table">
                             <thead>
@@ -236,12 +246,12 @@ export default function NhanVien() {
                             </tfoot>
                         </table>
                     </div>
-                </div>
+                </BubbleItem>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: 24 }}>
                     {/* Phát sinh & Ghi chú */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                        <div className="card animate-slide-up stagger-2" style={{ marginBottom: 0 }}>
+                        <BubbleItem className="card" delay={0.3} style={{ marginBottom: 0 }}>
                             <h3 className="card-title">💸 Thu chi phát sinh <InfoTooltip text="Ghi nhận các khoản tiền thu thêm hoặc chi ra trong ca (VD: mua đá, tiền rác...)" /></h3>
                             {phatSinh.map((ps, i) => (
                                 <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 12, alignItems: 'center', padding: '10px 16px', borderRadius: 12, border: '1px solid var(--gray-200)' }}>
@@ -263,9 +273,9 @@ export default function NhanVien() {
                                 </div>
                             ))}
                             <ThemPhatSinh onAdd={ps => setPhatSinh(prev => [...prev, ps])} />
-                        </div>
+                        </BubbleItem>
 
-                        <div className="card animate-slide-up stagger-3" style={{ marginBottom: 0 }}>
+                        <BubbleItem className="card" delay={0.4} style={{ marginBottom: 0 }}>
                             <h3 className="card-title">📝 Ghi chú ca <InfoTooltip text="Để lại tin nhắn hoặc tình trạng ca làm cho quản lý/ca sau" /></h3>
                             <textarea
                                 className="input-field"
@@ -274,12 +284,12 @@ export default function NhanVien() {
                                 value={ghiChu}
                                 onChange={e => setGhiChu(e.target.value)}
                             />
-                        </div>
+                        </BubbleItem>
                     </div>
 
                     {/* Thu tiền & Bàn giao */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                        <div className="card animate-slide-up stagger-4" style={{ border: '1px solid var(--gray-200)', marginBottom: 0 }}>
+                        <BubbleItem className="card" delay={0.5} style={{ border: '1px solid var(--gray-200)', marginBottom: 0 }}>
                             <h3 className="card-title">💰 Thu tiền ca {loaiCa === 'sang' ? 'Sáng' : 'Chiều'}</h3>
                             <div className="flex-between" style={{ marginBottom: 16 }}>
                                 <label style={{ fontWeight: '600', color: 'var(--text-muted)' }}>🛵 Grab:</label>
@@ -299,9 +309,9 @@ export default function NhanVien() {
                                     {tongThu.toLocaleString('vi-VN')}đ
                                 </span>
                             </div>
-                        </div>
+                        </BubbleItem>
 
-                        <div className="card animate-slide-up stagger-5" style={{ marginBottom: 0 }}>
+                        <BubbleItem className="card" delay={0.6} style={{ background: 'var(--gray-50)', marginBottom: 0, flex: 1 }}>
                             <h3 className="card-title">🤝 Bàn giao tiền mặt <InfoTooltip text="Số tiền mặt thực tế bạn để lại tại quán sau khi kết thúc ca" /></h3>
                             <div className="flex-between" style={{ marginBottom: 16 }}>
                                 <label style={{ color: 'var(--text-muted)' }}>Tiền mặt thực tế:</label>
@@ -324,14 +334,17 @@ export default function NhanVien() {
                                     {thieuDu >= 0 ? '+' : ''}{thieuDu.toLocaleString('vi-VN')}đ
                                 </span>
                             </div>
-                        </div>
+                        </BubbleItem>
 
-                        <button className="btn btn-danger animate-slide-up stagger-5" style={{ width: '100%', padding: '18px', fontSize: 16, letterSpacing: 1 }}
+                        <BubbleItem>
+                        <button className="btn btn-danger" style={{ width: '100%', padding: '18px', fontSize: 16, letterSpacing: 1 }}
                             onClick={() => setShowXacNhan(true)}>
                             ⏹ Kết Thúc & Xem Tóm Tắt
                         </button>
+                        </BubbleItem>
                     </div>
                 </div>
+                </StaggerContainer>
 
                 {showXacNhan && (
                     <XacNhanCa
@@ -343,7 +356,7 @@ export default function NhanVien() {
                         onCancel={() => setShowXacNhan(false)}
                     />
                 )}
-            </div>
+            </>
         )
     }
 
@@ -353,13 +366,17 @@ export default function NhanVien() {
         <SidebarLayout menuItems={MENU} activeTab={tab} onTabChange={setTab}>
             <div style={{ marginBottom: 32 }} className="animate-fade-in">
                 <h1 style={{ margin: 0, fontSize: 28, color: 'var(--text-main)' }}>Chào, <span style={{ color: 'var(--primary)' }}>{user.ten}</span> 👋</h1>
-                <p style={{ color: 'var(--text-muted)', fontSize: 15, marginTop: 8 }}>
-                    {step === 'dang_lam' ? `Đang trong ca làm việc: ${loaiCa === 'sang' ? 'Ca Sáng' : 'Ca Chiều'}` : 'Chúc bạn một ca làm việc vui vẻ và suôn sẻ!'}
-                </p>
+                <p style={{ color: 'var(--text-muted)', fontSize: 15, marginTop: 8 }}>Vui lòng làm theo từng bước để đảm bảo chính xác</p>
             </div>
 
             {tab === 'lam_viec' && (
-                step === 'chon_ca' ? renderChonCa() : renderDangLam()
+                isChecking ? (
+                    <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
+                        Đang kiểm tra dữ liệu ca làm...
+                    </div>
+                ) : (
+                    step === 'chon_ca' ? renderChonCa() : renderDangLam()
+                )
             )}
 
             {tab === 'bao_cao' && <BaoCao nhanVienId={user.id} />}

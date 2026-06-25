@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext'
 import axios from 'axios'
 import { LogIn, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { StaggerContainer, BubbleItem } from '../components/BubbleAnimation'
 import toast from 'react-hot-toast'
 
 const API = import.meta.env.VITE_API_URL
@@ -80,6 +81,8 @@ export default function Login() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
             >
+                <StaggerContainer delay={0.2} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <BubbleItem>
                 <div className="center-flex mb-2">
                     <div style={{
                         width: 64, height: 64, borderRadius: 16,
@@ -90,11 +93,16 @@ export default function Login() {
                         marginBottom: 16
                     }}>B</div>
                 </div>
+                </BubbleItem>
+                
+                <BubbleItem>
                 <div style={{ textAlign: 'center', marginBottom: 16 }}>
                     <h2 style={{ color: 'var(--text-main)', margin: '0 0 8px 0', fontSize: '1.8rem', fontWeight: 700 }}>Chào mừng trở lại</h2>
                     <p style={{ color: 'var(--text-muted)', margin: 0 }}>Đăng nhập để vào hệ thống Bánh Bao</p>
                 </div>
+                </BubbleItem>
 
+                <BubbleItem>
                 {loadingDS
                     ? <p className="text-center text-muted">Đang tải danh sách...</p>
                     : <select
@@ -108,7 +116,9 @@ export default function Login() {
                         ))}
                     </select>
                 }
+                </BubbleItem>
 
+                <BubbleItem>
                 <input
                     className="input-field"
                     type="password"
@@ -117,18 +127,22 @@ export default function Login() {
                     onChange={e => setMatKhau(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleLogin()}
                 />
+                </BubbleItem>
 
+                <BubbleItem>
                 <motion.button
                     className="btn btn-primary"
-                    style={{ marginTop: 8, padding: '16px', fontSize: '1.1rem', letterSpacing: 1 }}
+                    style={{ width: '100%', marginTop: 8, padding: '16px', fontSize: '1.1rem', letterSpacing: 1 }}
                     onClick={handleLogin}
                     disabled={loading || loadingDS}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.95 }}
                 >
-                    <LogIn size={20} />
+                    <LogIn size={20} style={{ marginRight: 8 }} />
                     {loading ? 'Đang xác thực...' : 'Đăng Nhập'}
                 </motion.button>
+                </BubbleItem>
+                </StaggerContainer>
             </motion.div>
         </div>
     )

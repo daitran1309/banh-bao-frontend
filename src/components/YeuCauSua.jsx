@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Check, X, Bell } from 'lucide-react'
+import { StaggerContainer, BubbleItem } from './BubbleAnimation'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -37,13 +38,13 @@ export default function YeuCauSua({ token }) {
     if (yeuCaus.length === 0) return <p style={{ textAlign: 'center', color: 'var(--text-muted)' }} className="animate-fade-in">Không có yêu cầu sửa ca nào.</p>
 
     return (
-        <div className="card animate-slide-up">
+        <StaggerContainer delay={0.1} className="card">
             <h3 style={{ margin: '0 0 24px', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Bell size={24} color="var(--warning)" /> Danh sách Yêu cầu Sửa Ca
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {yeuCaus.map((yc) => (
-                    <div key={yc.id} style={{ 
+                {yeuCaus.map((yc, i) => (
+                    <BubbleItem key={yc.id} delay={(i % 5) * 0.1} style={{ 
                         border: '1px solid var(--gray-200)', 
                         padding: '16px 20px', borderRadius: 12, display: 'flex', justifyContent: 'space-between', 
                         alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 
@@ -76,9 +77,9 @@ export default function YeuCauSua({ token }) {
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </BubbleItem>
                 ))}
             </div>
-        </div>
+        </StaggerContainer>
     )
 }

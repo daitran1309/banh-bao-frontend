@@ -4,6 +4,7 @@ import axios from 'axios'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts'
 import InfoTooltip from '../components/InfoTooltip'
 import { motion } from 'framer-motion'
+import { StaggerContainer, BubbleItem } from '../components/BubbleAnimation'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -167,25 +168,25 @@ export default function BaoCao({ nhanVienId }) {
             ) : !data ? (
                 <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 40 }} className="animate-fade-in">Không có dữ liệu trong khoảng thời gian này</p>
             ) : (
-                <>
+                <StaggerContainer delay={0.1}>
                 {/* Tổng quan */}
                 <div style={s.summaryRow}>
-                    <div style={{ ...s.summaryCard, background: 'linear-gradient(135deg, rgba(108, 93, 211, 0.2), rgba(108, 93, 211, 0.05))', border: '1px solid rgba(108, 93, 211, 0.3)' }} className="animate-slide-up stagger-1">
+                    <BubbleItem style={{ ...s.summaryCard, background: 'linear-gradient(135deg, rgba(108, 93, 211, 0.2), rgba(108, 93, 211, 0.05))', border: '1px solid rgba(108, 93, 211, 0.3)' }}>
                         <div style={s.summaryLabel}>Tổng doanh thu</div>
                         <div style={{ ...s.summaryVal, color: 'var(--primary)', textShadow: '0 0 20px rgba(108, 93, 211, 0.5)' }}>
                             {data.tong_doanh_thu.toLocaleString('vi-VN')}đ
                         </div>
-                    </div>
-                    <div style={{ ...s.summaryCard, background: 'linear-gradient(135deg, rgba(255, 117, 216, 0.2), rgba(255, 117, 216, 0.05))', border: '1px solid rgba(255, 117, 216, 0.3)' }} className="animate-slide-up stagger-2">
+                    </BubbleItem>
+                    <BubbleItem style={{ ...s.summaryCard, background: 'linear-gradient(135deg, rgba(255, 117, 216, 0.2), rgba(255, 117, 216, 0.05))', border: '1px solid rgba(255, 117, 216, 0.3)' }}>
                         <div style={s.summaryLabel}>Số ca đã làm</div>
                         <div style={{ ...s.summaryVal, color: 'var(--accent)', textShadow: '0 0 20px rgba(255, 117, 216, 0.5)' }}>
                             {data.tong_ca} ca
                         </div>
-                    </div>
+                    </BubbleItem>
                 </div>
 
                 {/* Biểu đồ doanh thu */}
-                <div className="card animate-slide-up stagger-3">
+                <BubbleItem className="card">
                     <h3 className="card-title">
                         📈 Doanh thu theo ngày 
                         <InfoTooltip text={nhanVienId ? "Xem xu hướng doanh thu cá nhân từ các ca do chính bạn bán." : "Xem xu hướng doanh thu qua các ngày. Rê chuột vào điểm để xem chi tiết."} />
@@ -215,12 +216,12 @@ export default function BaoCao({ nhanVienId }) {
                             />
                         </AreaChart>
                     </ResponsiveContainer>
-                </div>
+                </BubbleItem>
 
                 {/* So sánh ca & Bánh bán chạy */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
                     {soSanh && (
-                        <div className="card animate-slide-up stagger-4" style={{ flex: '1 1 400px', marginBottom: 0 }}>
+                        <BubbleItem className="card" style={{ flex: '1 1 400px', marginBottom: 0 }}>
                             <h3 className="card-title">⚖️ So sánh Ca Sáng vs Chiều <InfoTooltip text="Đánh giá hiệu suất bán hàng giữa các ca làm việc" /></h3>
                             <ResponsiveContainer width="100%" height={220}>
                                 <BarChart data={[
@@ -254,28 +255,15 @@ export default function BaoCao({ nhanVienId }) {
                                     <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>TB: {soSanh.chieu.tb_moi_ca.toLocaleString('vi-VN')}đ/ca</div>
                                 </div>
                             </div>
-                        </div>
+                        </BubbleItem>
                     )}
 
                     {/* Bánh bán chạy */}
-                    <motion.div 
-                        className="card" 
-                        style={{ flex: '1 1 400px', marginBottom: 0 }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                    >
+                    <BubbleItem className="card" style={{ flex: '1 1 400px', marginBottom: 0 }}>
                         <h3 className="card-title">🏆 Top Sản Phẩm Bán Chạy <InfoTooltip text="Top bánh có số lượng bán nhiều nhất trong khoảng thời gian chọn" /></h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                             {data.theo_loai.slice(0, 10).map((b, i) => (
-                                <motion.div 
-                                    key={i} 
-                                    style={s.banhRow}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ duration: 0.3, delay: i * 0.05 }}
-                                    whileHover={{ scale: 1.02, background: 'var(--primary-light)' }}
-                                >
+                                <div key={i} style={s.banhRow}>
                                     <div style={{ ...s.rank, background: i < 3 ? 'var(--primary)' : 'var(--gray-200)', color: i < 3 ? '#fff' : 'var(--text-muted)' }}>
                                         {i + 1}
                                     </div>
@@ -286,12 +274,12 @@ export default function BaoCao({ nhanVienId }) {
                                     <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>
                                         {b.tong_dt.toLocaleString('vi-VN')}đ
                                     </div>
-                                </motion.div>
+                                </div>
                             ))}
                         </div>
-                    </motion.div>
+                    </BubbleItem>
                 </div>
-                </>
+                </StaggerContainer>
             )}
         </div>
     )

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import { Plus, Edit2, EyeOff, Eye } from 'lucide-react'
+import { StaggerContainer, BubbleItem } from '../components/BubbleAnimation'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -60,15 +61,15 @@ export default function QuanLyBanh() {
     }
 
     return (
-        <div style={s.wrap} className="animate-fade-in">
-            <div className="card animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, padding: '20px 24px' }}>
+        <StaggerContainer delay={0.1} style={s.wrap}>
+            <BubbleItem className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, padding: '20px 24px' }}>
                 <h3 style={{ margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{ fontSize: 24 }}>🥟</span> Quản lý loại bánh
                 </h3>
                 <button className="btn btn-primary" onClick={() => moForm()}>
                     <Plus size={18} /> Thêm bánh mới
                 </button>
-            </div>
+            </BubbleItem>
 
             {loading ? (
                 <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 40 }} className="animate-fade-in">Đang tải dữ liệu bánh...</p>
@@ -77,7 +78,7 @@ export default function QuanLyBanh() {
             ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
                     {banhs.map((b, i) => (
-                        <div key={i} className={`card animate-slide-up stagger-${(i % 5) + 1}`} style={{ ...s.banhCard, opacity: b.trang_thai === 'inactive' ? 0.6 : 1, marginBottom: 0 }}>
+                        <BubbleItem key={i} delay={(i % 5) * 0.1} className="card" style={{ ...s.banhCard, opacity: b.trang_thai === 'inactive' ? 0.6 : 1, marginBottom: 0 }}>
                             <div style={{ flex: 1 }}>
                                 <div style={s.banhName}>
                                     {b.ten_banh}
@@ -102,7 +103,7 @@ export default function QuanLyBanh() {
                                     </button>
                                 }
                             </div>
-                        </div>
+                        </BubbleItem>
                     ))}
                 </div>
             )}
@@ -148,7 +149,7 @@ export default function QuanLyBanh() {
                     </div>
                 </div>
             )}
-        </div>
+        </StaggerContainer>
     )
 }
 

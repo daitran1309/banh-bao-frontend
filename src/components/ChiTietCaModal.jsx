@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const API = import.meta.env.VITE_API_URL
 
-export default function ChiTietCaModal({ caId, onClose, user, token }) {
+export default function ChiTietCaModal({ caId, onClose, user, token, inline = false }) {
     const [ca, setCa] = useState(null)
     const [loading, setLoading] = useState(true)
     const [isEditing, setIsEditing] = useState(false)
@@ -115,7 +115,7 @@ export default function ChiTietCaModal({ caId, onClose, user, token }) {
         }
     }
 
-    if (loading) return (
+    if (loading) return inline ? <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)' }}>Đang tải...</div> : (
         <div className="modal-overlay" style={s.overlay}>
             <div className="modal-content" style={s.modal}>
                 <div style={s.header}>
@@ -127,7 +127,7 @@ export default function ChiTietCaModal({ caId, onClose, user, token }) {
         </div>
     )
 
-    if (!ca) return (
+    if (!ca) return inline ? <div style={{ padding: 20, textAlign: 'center', color: 'var(--danger)' }}>Lỗi tải dữ liệu</div> : (
         <div className="modal-overlay" style={s.overlay}>
             <div className="modal-content" style={s.modal}>
                 <div style={s.header}>
@@ -161,30 +161,40 @@ export default function ChiTietCaModal({ caId, onClose, user, token }) {
     const tmThucTe = tongDt - Number(tienToRender.grab || 0) - Number(tienToRender.chuyen_khoan || 0)
     const thieuDu = Number(tienToRender.ban_giao || 0) - tmThucTe
 
-    return (
-        <AnimatePresence>
-            <motion.div className="modal-overlay" style={s.overlay} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <motion.div className="modal-content" style={s.modal} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-                    <div style={s.header}>
-                        <h3 style={{ margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                            Chi tiết ca {ca.loai_ca === 'sang' ? 'Sáng' : 'Chiều'} - {ca.ngay}
-                        </h3>
-                        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                            {!isEditing && canEdit && (
-                                <button onClick={startEdit} className="btn btn-outline" style={{ padding: '8px 16px', fontSize: 14 }}>
-                                    <Edit size={16}/> Sửa ca
-                                </button>
-                            )}
-                            {!isEditing && (
-                                <button onClick={handleExportExcel} className="btn btn-primary" style={{ padding: '8px 16px', fontSize: 14, background: 'var(--success)' }}>
-                                    <Download size={16}/> Xuất biên bản
-                                </button>
-                            )}
-                            <button onClick={() => onClose(hasEdited)} className="btn btn-ghost" style={{ padding: 8 }}><X size={24}/></button>
-                        </div>
+    const innerContent = (
+        <>
+            {!inline && (
+                <div style={s.header}>
+                    <h3 style={{ margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                        Chi tiết ca {ca.loai_ca === 'sang' ? 'Sáng' : 'Chiều'} - {ca.ngay}
+                    </h3>
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                        {!isEditing && canEdit && (
+                            <button onClick={startEdit} className="btn btn-outline" style={{ padding: '8px 16px', fontSize: 14 }}>
+                                <Edit size={16}/> Sửa ca
+                            </button>
+                        )}
+                        {!isEditing && (
+                            <button onClick={handleExportExcel} className="btn btn-primary" style={{ padding: '8px 16px', fontSize: 14, background: 'var(--success)' }}>
+                                <Download size={16}/> Xuất biên bản
+                            </button>
+                        )}
+                        <button onClick={() => onClose(hasEdited)} className="btn btn-ghost" style={{ padding: 8 }}><X size={24}/></button>
                     </div>
+                </div>
+            )}
+            
+            {inline && !isEditing && (
+                <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray-200)', background: 'rgba(0,0,0,0.1)' }}>
+                    <h4 style={{ margin: 0, color: 'var(--primary)' }}>Chi tiết ca làm việc</h4>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                        {canEdit && <button onClick={startEdit} className="btn btn-outline" style={{ padding: '6px 12px', fontSize: 13 }}><Edit size={14}/> Sửa</button>}
+                        <button onClick={handleExportExcel} className="btn btn-primary" style={{ padding: '6px 12px', fontSize: 13, background: 'var(--success)' }}><Download size={14}/> Xuất Excel</button>
+                    </div>
+                </div>
+            )}
 
-                    <div style={s.body}>
+            <div style={inline ? {} : s.body}>
                         {isEditing && (
                             <div style={{ padding: '16px 24px', background: 'rgba(255, 117, 216, 0.1)', borderBottom: '1px solid rgba(255, 117, 216, 0.2)', display: 'flex', gap: 12, justifyContent: 'flex-end', alignItems: 'center' }}>
                                 <span style={{ color: 'var(--accent)', fontWeight: 'bold', marginRight: 'auto' }}>Đang chế độ sửa ca</span>
@@ -344,6 +354,25 @@ export default function ChiTietCaModal({ caId, onClose, user, token }) {
                             )}
                         </div>
                     </div>
+        </>
+    )
+
+    if (inline) return (
+        <motion.div 
+            initial={{ height: 0, opacity: 0 }} 
+            animate={{ height: 'auto', opacity: 1 }} 
+            exit={{ height: 0, opacity: 0 }} 
+            style={{ overflow: 'hidden', borderTop: '1px solid var(--gray-200)', background: 'var(--glass-bg)' }}
+        >
+            {innerContent}
+        </motion.div>
+    )
+
+    return (
+        <AnimatePresence>
+            <motion.div className="modal-overlay" style={s.overlay} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <motion.div className="modal-content" style={s.modal} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+                    {innerContent}
                 </motion.div>
             </motion.div>
         </AnimatePresence>

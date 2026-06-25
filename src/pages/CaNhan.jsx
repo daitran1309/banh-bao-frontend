@@ -2,7 +2,8 @@ import { useState, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import DoiMatKhau from '../components/DoiMatKhau'
-import { Camera, Save, User as UserIcon, Lock } from 'lucide-react'
+import { User as UserIcon, Camera, Save, Lock } from 'lucide-react'
+import { StaggerContainer, BubbleItem } from '../components/BubbleAnimation'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -50,7 +51,7 @@ export default function CaNhan() {
     }
 
     return (
-        <div style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 40 }} className="animate-fade-in">
+        <StaggerContainer delay={0.1} style={{ maxWidth: 600, margin: '0 auto', paddingBottom: 40 }}>
             <h2 style={{ marginBottom: 24, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ padding: 8, background: 'rgba(108, 93, 211, 0.2)', borderRadius: 12, display: 'flex', color: 'var(--primary)' }}>
                     <UserIcon size={24} />
@@ -58,7 +59,7 @@ export default function CaNhan() {
                 Thông tin cá nhân
             </h2>
 
-            <div className="card animate-slide-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, padding: 32 }}>
+            <BubbleItem className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, padding: 32 }}>
                 <div style={{ position: 'relative' }}>
                     {previewUrl ? (
                         <img src={previewUrl} alt="Avatar" style={s.avatar} />
@@ -107,9 +108,9 @@ export default function CaNhan() {
                 >
                     <Save size={18}/> {saving ? 'Đang lưu...' : 'Lưu thông tin'}
                 </button>
-            </div>
+            </BubbleItem>
 
-            <div style={{ marginTop: 40 }} className="animate-slide-up stagger-1">
+            <BubbleItem delay={0.2} style={{ marginTop: 40 }}>
                 <h3 style={{ marginBottom: 20, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ padding: 8, background: 'rgba(255, 117, 216, 0.2)', borderRadius: 12, display: 'flex', color: 'var(--accent)' }}>
                         <Lock size={20} />
@@ -122,8 +123,8 @@ export default function CaNhan() {
                         <DoiMatKhau inline={true} />
                     </div>
                 </div>
-            </div>
-        </div>
+            </BubbleItem>
+        </StaggerContainer>
     )
 }
 

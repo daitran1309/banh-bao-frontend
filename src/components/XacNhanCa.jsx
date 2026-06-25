@@ -57,18 +57,20 @@ const s = {
         display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16
     },
     modal: {
-        background: '#fff', borderRadius: 16, padding: 20, width: '100%', maxWidth: 400,
+        background: 'var(--input-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--gray-200)', 
+        borderRadius: 16, padding: 20, width: '100%', maxWidth: 400,
         maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12
     },
     title: { margin: 0, textAlign: 'center', color: 'var(--text-main)', fontSize: 18 },
-    section: { background: 'var(--primary-light)', borderRadius: 12, padding: 12 },
+    section: { background: 'var(--primary-light)', borderRadius: 12, padding: 12, border: '1px solid var(--gray-200)' },
     sectionTitle: { fontSize: 13, color: 'var(--text-muted)', marginBottom: 8 },
     bigNum: { fontSize: 28, fontWeight: 'bold', color: 'var(--danger)', textAlign: 'center' },
-    row: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, fontSize: 15 },
+    row: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, fontSize: 15, color: 'var(--text-main)' },
     btnRow: { display: 'flex', gap: 8 },
     btnCancel: {
-        flex: 1, padding: 14, borderRadius: 10, border: '2px solid var(--gray-200)',
-        background: '#fff', cursor: 'pointer', fontSize: 15
+        flex: 1, padding: 14, borderRadius: 10, border: 'none',
+        background: 'var(--gray-200)', color: 'var(--text-main)', cursor: 'pointer', fontSize: 15, transition: 'var(--transition)',
+        fontWeight: '600'
     },
     btnConfirm: {
         flex: 1, padding: 14, borderRadius: 10, border: 'none',

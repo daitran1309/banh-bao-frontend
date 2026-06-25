@@ -4,6 +4,7 @@ import axios from 'axios'
 import * as XLSX from 'xlsx'
 import { Download, RefreshCw } from 'lucide-react'
 import { exportBienBanExcel } from '../utils/exportExcel'
+import { StaggerContainer, BubbleItem } from '../components/BubbleAnimation'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -158,9 +159,9 @@ export default function BienBan() {
     }
 
     return (
-        <div className="animate-fade-in">
+        <StaggerContainer delay={0.1}>
             {/* Chọn ngày */}
-            <div className="card animate-slide-up" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24, padding: '20px 24px', flexWrap: 'wrap' }}>
+            <BubbleItem className="card" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24, padding: '20px 24px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 16px', borderRadius: 100, border: '1px solid var(--gray-200)' }}>
                     <label style={{ fontWeight: '600', color: 'var(--text-muted)' }}>📅 Ngày:</label>
                     <input type="date" value={ngay} onChange={e => setNgay(e.target.value)} 
@@ -172,7 +173,7 @@ export default function BienBan() {
                 <button onClick={xuatExcel} className="btn" style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white' }}>
                     <Download size={18}/> Xuất Excel
                 </button>
-            </div>
+            </BubbleItem>
 
             {loading ? (
                 <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 40 }} className="animate-fade-in">Đang tải biên bản...</p>
@@ -181,25 +182,25 @@ export default function BienBan() {
             ) : (
                 <>
                     {/* Ca Sáng */}
-                    <div className="card animate-slide-up stagger-1" style={{ overflow: 'hidden', padding: 0 }}>
+                    <BubbleItem className="card" delay={0.1} style={{ overflow: 'hidden', padding: 0 }}>
                         <div style={{ padding: '20px 24px', background: 'linear-gradient(90deg, rgba(108, 93, 211, 0.4) 0%, rgba(108, 93, 211, 0) 100%)', color: 'var(--text-main)', fontWeight: 'bold', fontSize: 16, display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid var(--gray-200)' }}>
                             <div style={{ width: 4, height: 24, background: 'var(--primary)', borderRadius: 4 }}></div>
                             ☀️ CA SÁNG {caSang ? <span style={{ color: 'var(--primary)' }}>— {bienBan?.cas?.find(c => c.loai_ca === 'sang')?.nhan_vien}</span> : <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>(Chưa có)</span>}
                         </div>
                         {renderBang(caSang)}
-                    </div>
+                    </BubbleItem>
 
                     {/* Ca Chiều */}
-                    <div className="card animate-slide-up stagger-2" style={{ overflow: 'hidden', padding: 0, marginTop: 24 }}>
+                    <BubbleItem className="card" delay={0.2} style={{ overflow: 'hidden', padding: 0, marginTop: 24 }}>
                         <div style={{ padding: '20px 24px', background: 'linear-gradient(90deg, rgba(255, 117, 216, 0.3) 0%, rgba(255, 117, 216, 0) 100%)', color: 'var(--text-main)', fontWeight: 'bold', fontSize: 16, display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid var(--gray-200)' }}>
                             <div style={{ width: 4, height: 24, background: 'var(--accent)', borderRadius: 4 }}></div>
                             🌙 CA CHIỀU {caChieu ? <span style={{ color: 'var(--accent)' }}>— {bienBan?.cas?.find(c => c.loai_ca === 'chieu')?.nhan_vien}</span> : <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>(Chưa có)</span>}
                         </div>
                         {renderBang(caChieu)}
-                    </div>
+                    </BubbleItem>
                 </>
             )}
-        </div>
+        </StaggerContainer>
     )
 }
 
