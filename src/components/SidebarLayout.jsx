@@ -80,7 +80,7 @@ export default function SidebarLayout({ children, menuItems, activeTab, onTabCha
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
                         <button style={s.iconBtn} onClick={toggleTheme}>
-                            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+                            {theme === 'light' ? <Moon size={20} color="var(--primary)" /> : <Sun size={20} color="var(--warning)" />}
                         </button>
                         
                         <button style={s.iconBtn}>
@@ -230,6 +230,7 @@ const s = {
         fontSize: '0.95rem'
     },
     iconBtn: {
+        background: 'var(--glass-bg)', backdropFilter: 'blur(10px)',
         border: '1px solid var(--gray-200)',
         borderRadius: '50%',
         width: 44, height: 44,

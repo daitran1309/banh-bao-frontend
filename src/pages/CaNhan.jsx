@@ -7,7 +7,7 @@ import { Camera, Save, User as UserIcon, Lock } from 'lucide-react'
 const API = import.meta.env.VITE_API_URL
 
 export default function CaNhan() {
-    const { user, token } = useAuth()
+    const { user, token, updateUser } = useAuth()
     const [ten, setTen] = useState(user.ten)
     const [avatarBase64, setAvatarBase64] = useState('')
     const [previewUrl, setPreviewUrl] = useState(user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `${API}${user.avatar}`) : '')
@@ -40,9 +40,8 @@ export default function CaNhan() {
                 avatarBase64: avatarBase64 || undefined
             }, { headers: { Authorization: `Bearer ${token}` } })
             
-            setMsg('✅ Cập nhật thành công. Vui lòng tải lại trang để thấy thay đổi.')
-            // Ideally we'd update AuthContext user here, but a reload is safe.
-            setTimeout(() => window.location.reload(), 1500)
+            updateUser(res.data.user)
+            setMsg('✅ Cập nhật thành công!')
         } catch (e) {
             setMsg('❌ Lỗi: ' + (e.response?.data?.error || e.message))
         } finally {

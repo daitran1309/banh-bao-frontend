@@ -53,13 +53,14 @@ export default function Login() {
                 onClick={toggleTheme} 
                 style={{
                     position: 'absolute', top: 24, right: 24, zIndex: 10,
+                    background: 'var(--glass-bg)', backdropFilter: 'blur(10px)',
                     border: '1px solid var(--gray-200)',
                     borderRadius: '50%', width: 44, height: 44,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: 'var(--text-main)', cursor: 'pointer', transition: 'var(--transition)'
                 }}
             >
-                {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+                {theme === 'light' ? <Moon size={20} color="var(--primary)" /> : <Sun size={20} color="var(--warning)" />}
             </button>
             
             {/* Background elements for SaaS look */}
