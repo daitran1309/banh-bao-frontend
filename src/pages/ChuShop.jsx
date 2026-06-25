@@ -34,9 +34,9 @@ export default function ChuShop() {
 
     return (
         <SidebarLayout menuItems={MENU} activeTab={tab} onTabChange={setTab}>
-            <div style={{ marginBottom: 24 }}>
-                <h1 style={{ margin: 0 }}>Quản lý Cửa Hàng 👋</h1>
-                <p style={{ color: 'var(--text-muted)' }}>Xem tổng quan hoạt động kinh doanh hôm nay.</p>
+            <div style={{ marginBottom: 32 }} className="animate-fade-in">
+                <h1 style={{ margin: 0, fontSize: 28, color: 'var(--text-main)' }}>Quản lý Cửa Hàng 👋</h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: 15, marginTop: 8 }}>Xem tổng quan hoạt động kinh doanh hôm nay.</p>
             </div>
 
             {tab === 'bien_ban' && <BienBan key={`bb_${refreshKey}`} />}

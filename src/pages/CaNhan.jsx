@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import DoiMatKhau from '../components/DoiMatKhau'
-import { Camera, Save } from 'lucide-react'
+import { Camera, Save, User as UserIcon, Lock } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -51,19 +51,27 @@ export default function CaNhan() {
     }
 
     return (
-        <div style={{ maxWidth: 600, margin: '0 auto' }}>
-            <h2 style={{ marginBottom: 24, color: 'var(--primary)' }}>👤 Thông tin cá nhân</h2>
+        <div style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 40 }} className="animate-fade-in">
+            <h2 style={{ marginBottom: 24, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ padding: 8, background: 'rgba(108, 93, 211, 0.2)', borderRadius: 12, display: 'flex', color: 'var(--primary)' }}>
+                    <UserIcon size={24} />
+                </div>
+                Thông tin cá nhân
+            </h2>
 
-            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+            <div className="card animate-slide-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, padding: 32 }}>
                 <div style={{ position: 'relative' }}>
                     {previewUrl ? (
                         <img src={previewUrl} alt="Avatar" style={s.avatar} />
                     ) : (
-                        <div style={s.avatarPlaceholder}>Chưa có ảnh</div>
+                        <div style={s.avatarPlaceholder}>
+                            <UserIcon size={40} opacity={0.5} />
+                        </div>
                     )}
                     <button 
                         style={s.cameraBtn}
                         onClick={() => fileInputRef.current.click()}
+                        title="Đổi ảnh đại diện"
                     >
                         <Camera size={18} />
                     </button>
@@ -76,20 +84,25 @@ export default function CaNhan() {
                     />
                 </div>
 
-                <div style={{ width: '100%', marginTop: 16 }}>
-                    <label style={s.label}>Họ và tên</label>
+                <div style={{ width: '100%' }}>
+                    <label style={s.label}>Họ và tên hiển thị</label>
                     <input 
                         className="input-field" 
                         value={ten} 
                         onChange={e => setTen(e.target.value)}
+                        style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold' }}
                     />
                 </div>
 
-                {msg && <p style={{ color: msg.includes('✅') ? 'var(--success)' : 'var(--danger)', fontWeight: 'bold' }}>{msg}</p>}
+                {msg && <div style={{ 
+                    width: '100%', padding: 12, borderRadius: 8, textAlign: 'center', fontWeight: 'bold',
+                    background: msg.includes('✅') ? 'var(--success-bg)' : 'var(--danger-bg)',
+                    color: msg.includes('✅') ? 'var(--success)' : 'var(--danger)'
+                 }}>{msg}</div>}
 
                 <button 
                     className="btn btn-primary" 
-                    style={{ width: '100%', marginTop: 8 }}
+                    style={{ width: '100%', padding: '14px' }}
                     onClick={handleSave}
                     disabled={saving}
                 >
@@ -97,12 +110,16 @@ export default function CaNhan() {
                 </button>
             </div>
 
-            <div style={{ marginTop: 32 }}>
-                <h3 style={{ marginBottom: 16, color: 'var(--text-main)' }}>🔒 Bảo mật</h3>
-                <div className="card">
+            <div style={{ marginTop: 40 }} className="animate-slide-up stagger-1">
+                <h3 style={{ marginBottom: 20, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ padding: 8, background: 'rgba(255, 117, 216, 0.2)', borderRadius: 12, display: 'flex', color: 'var(--accent)' }}>
+                        <Lock size={20} />
+                    </div>
+                    Bảo mật tài khoản
+                </h3>
+                <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
                     {/* Reuse DoiMatKhau without modal wrapper, or just render it inline */}
-                    {/* Since DoiMatKhau is designed as a modal, let's wrap it nicely */}
-                    <div style={{ padding: 16, border: '1px solid var(--gray-200)', borderRadius: 12 }}>
+                    <div style={{ padding: 32 }}>
                         <DoiMatKhau inline={true} />
                     </div>
                 </div>
@@ -113,21 +130,23 @@ export default function CaNhan() {
 
 const s = {
     avatar: {
-        width: 120, height: 120, borderRadius: '50%', objectFit: 'cover',
-        border: '4px solid var(--primary-light)'
+        width: 130, height: 130, borderRadius: '50%', objectFit: 'cover',
+        border: '4px solid var(--primary)',
+        boxShadow: '0 0 20px rgba(108, 93, 211, 0.4)'
     },
     avatarPlaceholder: {
-        width: 120, height: 120, borderRadius: '50%', background: 'var(--gray-200)',
+        width: 130, height: 130, borderRadius: '50%', border: '2px dashed var(--gray-200)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)'
     },
     cameraBtn: {
-        position: 'absolute', bottom: 0, right: 0,
-        width: 36, height: 36, borderRadius: '50%',
-        background: 'var(--primary)', color: '#fff', border: 'none',
+        position: 'absolute', bottom: 4, right: 4,
+        width: 40, height: 40, borderRadius: '50%',
+        background: 'var(--accent)', color: '#fff', border: 'none',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+        cursor: 'pointer', boxShadow: '0 4px 10px rgba(255, 117, 216, 0.5)',
+        transition: 'transform 0.2s ease',
     },
     label: {
-        display: 'block', fontSize: 14, fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: 8
+        display: 'block', fontSize: 13, fontWeight: '600', color: 'var(--text-muted)', marginBottom: 8, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1
     }
 }

@@ -24,8 +24,8 @@ function ThemPhatSinh({ onAdd }) {
     }
 
     return (
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
-            <select className="input-field" value={loai} onChange={e => setLoai(e.target.value)} style={{ width: 'auto' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+            <select className="input-field select-field" value={loai} onChange={e => setLoai(e.target.value)} style={{ width: 'auto' }}>
                 <option value="thu">+ Thu</option>
                 <option value="chi">- Chi</option>
             </select>
@@ -133,7 +133,7 @@ export default function NhanVien() {
         try {
             await axios.post(`${API}/api/ca/ket-thuc`, {
                 ca_id: caId, chi_tiet: data,
-                grab, chuyen_khoan: chuyenKhoan, tien_mat: tienMat, ban_giao: banGiao,
+                grab, chuyen_khoan: chuyenKhoan, tien_mat: tienMat, banGiao: banGiao,
                 ghi_chu: ghiChu, phat_sinh: phatSinh
             }, { headers })
             setMsg('✅ Ca đã kết thúc!')
@@ -156,19 +156,19 @@ export default function NhanVien() {
 
     function renderChonCa() {
         return (
-            <div className="card text-center" style={{ padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
-                {msg && <div style={{ background: 'var(--success-bg)', color: 'var(--success)', padding: 12, borderRadius: 10, textAlign: 'center', fontWeight: 'bold', width: '100%' }}>{msg}</div>}
+            <div className="card animate-fade-in text-center" style={{ padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+                {msg && <div style={{ background: 'var(--success-bg)', color: 'var(--success)', padding: 12, borderRadius: 10, textAlign: 'center', fontWeight: 'bold', width: '100%', maxWidth: 400 }}>{msg}</div>}
 
-                <div style={{ width: 80, height: 80, background: 'var(--primary-light)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+                <div style={{ width: 80, height: 80, background: 'rgba(108, 93, 211, 0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', boxShadow: '0 0 20px rgba(108, 93, 211, 0.3)' }}>
                     <Briefcase size={40} />
                 </div>
-                <h2>Chưa có ca làm việc nào</h2>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                    <select className="input-field" value={loaiCa} onChange={e => setLoaiCa(e.target.value)} style={{ width: 150 }}>
+                <h2 style={{ color: 'var(--text-main)' }}>Chưa có ca làm việc nào</h2>
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <select className="input-field select-field" value={loaiCa} onChange={e => setLoaiCa(e.target.value)} style={{ width: 180 }}>
                         <option value="sang">☀️ Ca Sáng</option>
                         <option value="chieu">🌙 Ca Chiều</option>
                     </select>
-                    <button className="btn btn-primary" onClick={batDauCa} disabled={loading}>
+                    <button className="btn btn-primary" onClick={batDauCa} disabled={loading} style={{ padding: '14px 24px' }}>
                         {loading ? 'Đang tải...' : <><Plus size={20} /> Mở ca làm ngay</>}
                     </button>
                 </div>
@@ -178,58 +178,58 @@ export default function NhanVien() {
 
     function renderDangLam() {
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 {/* Tổng doanh thu */}
-                <div className="card" style={{ background: 'var(--primary)', color: '#fff', textAlign: 'center', padding: '24px' }}>
-                    <div style={{ fontSize: 14, opacity: 0.9, marginBottom: 8 }}>Doanh thu tạm tính</div>
-                    <div style={{ fontSize: 36, fontWeight: 'bold' }}>{tongDT.toLocaleString('vi-VN')}đ</div>
+                <div className="card animate-slide-up" style={{ background: 'linear-gradient(135deg, rgba(108, 93, 211, 0.3) 0%, rgba(108, 93, 211, 0.1) 100%)', border: '1px solid rgba(108, 93, 211, 0.4)', color: 'var(--text-main)', textAlign: 'center', padding: '32px' }}>
+                    <div style={{ fontSize: 16, color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1, fontWeight: '600' }}>Doanh thu tạm tính</div>
+                    <div style={{ fontSize: 42, fontWeight: '800', color: 'var(--primary)', textShadow: '0 0 20px rgba(108, 93, 211, 0.6)' }}>{tongDT.toLocaleString('vi-VN')}đ</div>
                 </div>
 
                 {/* Bảng bánh */}
-                <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                    <div className="table-wrapper" style={{ margin: 0, border: 'none', boxShadow: 'none' }}>
+                <div className="card animate-slide-up stagger-1" style={{ padding: 0, overflow: 'hidden' }}>
+                    <div className="table-wrapper" style={{ margin: 0, border: 'none', background: 'transparent' }}>
                         <table className="table">
                             <thead>
                                 <tr>
-                                    <th>Tên bánh</th>
+                                    <th style={{ textAlign: 'left' }}>Tên bánh</th>
                                     <th>Giá</th>
                                     <th>Tồn đầu</th>
                                     <th>Xuất (bịch)</th>
                                     <th>Hỏng</th>
                                     <th>Tồn cuối</th>
                                     <th>Bán</th>
-                                    <th>Doanh thu</th>
+                                    <th style={{ textAlign: 'right' }}>Doanh thu</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {data.map((d, i) => (
                                     <tr key={d.banh_id}>
-                                        <td><strong>{d.ten_banh}</strong></td>
-                                        <td style={{ textAlign: 'right' }}>{Number(d.gia).toLocaleString('vi-VN')}</td>
-                                        <td style={{ textAlign: 'center' }}>{d.ton_dau}</td>
+                                        <td><strong style={{ color: 'var(--text-main)' }}>{d.ten_banh}</strong></td>
+                                        <td style={{ textAlign: 'center', color: 'var(--text-muted)' }}>{Number(d.gia).toLocaleString('vi-VN')}</td>
+                                        <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{d.ton_dau}</td>
                                         <td style={{ textAlign: 'center' }}>
-                                            <input className="input-field" style={{ width: 60, padding: '4px 6px', textAlign: 'center' }} type="number" min="0" value={d.so_bich_xuat}
+                                            <input className="input-field" style={{ width: 70, padding: '8px', textAlign: 'center', border: '1px solid var(--gray-200)' }} type="number" min="0" value={d.so_bich_xuat}
                                                 onChange={e => updateField(d.banh_id, 'so_bich_xuat', e.target.value)} />
                                         </td>
                                         <td style={{ textAlign: 'center' }}>
-                                            <input className="input-field" style={{ width: 60, padding: '4px 6px', textAlign: 'center' }} type="number" min="0" value={d.hong}
+                                            <input className="input-field" style={{ width: 70, padding: '8px', textAlign: 'center', border: '1px solid var(--gray-200)' }} type="number" min="0" value={d.hong}
                                                 onChange={e => updateField(d.banh_id, 'hong', e.target.value)} />
                                         </td>
                                         <td style={{ textAlign: 'center' }}>
-                                            <input className="input-field" style={{ width: 60, padding: '4px 6px', textAlign: 'center' }} type="number" min="0" value={d.ton_cuoi}
+                                            <input className="input-field" style={{ width: 70, padding: '8px', textAlign: 'center', border: '1px solid var(--gray-200)' }} type="number" min="0" value={d.ton_cuoi}
                                                 onChange={e => updateField(d.banh_id, 'ton_cuoi', e.target.value)} />
                                         </td>
-                                        <td style={{ textAlign: 'center', color: 'var(--success)', fontWeight: 'bold' }}>{tinhBan(d)}</td>
-                                        <td style={{ textAlign: 'right', color: 'var(--danger)', fontWeight: 'bold' }}>
+                                        <td style={{ textAlign: 'center', color: 'var(--success)', fontWeight: 'bold', fontSize: 16 }}>{tinhBan(d)}</td>
+                                        <td style={{ textAlign: 'right', color: 'var(--accent)', fontWeight: 'bold' }}>
                                             {tinhDoanhThu(d).toLocaleString('vi-VN')}
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                             <tfoot>
-                                <tr style={{ background: 'var(--warning-bg)', fontWeight: 'bold' }}>
-                                    <td colSpan={7} style={{ textAlign: 'right' }}>TỔNG CỘNG:</td>
-                                    <td style={{ textAlign: 'right', color: 'var(--danger)', fontSize: 16 }}>
+                                <tr style={{ background: 'rgba(251, 191, 36, 0.1)' }}>
+                                    <td colSpan={7} style={{ textAlign: 'right', fontWeight: 'bold', color: 'var(--warning)', paddingRight: 20 }}>TỔNG CỘNG:</td>
+                                    <td style={{ textAlign: 'right', color: 'var(--warning)', fontSize: 18, fontWeight: '900' }}>
                                         {tongDT.toLocaleString('vi-VN')}đ
                                     </td>
                                 </tr>
@@ -238,26 +238,26 @@ export default function NhanVien() {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: 24 }}>
                     {/* Phát sinh & Ghi chú */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                        <div className="card">
+                        <div className="card animate-slide-up stagger-2" style={{ marginBottom: 0 }}>
                             <h3 className="card-title">💸 Thu chi phát sinh <InfoTooltip text="Ghi nhận các khoản tiền thu thêm hoặc chi ra trong ca (VD: mua đá, tiền rác...)" /></h3>
                             {phatSinh.map((ps, i) => (
-                                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                                <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 12, alignItems: 'center', padding: '10px 16px', borderRadius: 12, border: '1px solid var(--gray-200)' }}>
                                     <span style={{
-                                        padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 'bold',
+                                        padding: '4px 12px', borderRadius: 100, fontSize: 12, fontWeight: 'bold',
                                         background: ps.loai === 'thu' ? 'var(--success-bg)' : 'var(--danger-bg)',
                                         color: ps.loai === 'thu' ? 'var(--success)' : 'var(--danger)'
                                     }}>
-                                        {ps.loai === 'thu' ? '+ Thu' : '- Chi'}
+                                        {ps.loai === 'thu' ? '+ THU' : '- CHI'}
                                     </span>
-                                    <span style={{ flex: 1 }}>{ps.ten}</span>
-                                    <span style={{ fontWeight: 'bold' }}>
-                                        {Number(ps.so_tien).toLocaleString('vi-VN')}đ
+                                    <span style={{ flex: 1, color: 'var(--text-main)' }}>{ps.ten}</span>
+                                    <span style={{ fontWeight: 'bold', color: ps.loai === 'thu' ? 'var(--success)' : 'var(--danger)' }}>
+                                        {ps.loai === 'thu' ? '+' : '-'}{Number(ps.so_tien).toLocaleString('vi-VN')}đ
                                     </span>
                                     <button onClick={() => setPhatSinh(prev => prev.filter((_, j) => j !== i))}
-                                        className="btn btn-ghost" style={{ padding: 4, color: 'var(--danger)' }}>
+                                        className="btn btn-ghost" style={{ padding: 4, color: 'var(--text-muted)' }}>
                                         <X size={18} />
                                     </button>
                                 </div>
@@ -265,11 +265,11 @@ export default function NhanVien() {
                             <ThemPhatSinh onAdd={ps => setPhatSinh(prev => [...prev, ps])} />
                         </div>
 
-                        <div className="card">
+                        <div className="card animate-slide-up stagger-3" style={{ marginBottom: 0 }}>
                             <h3 className="card-title">📝 Ghi chú ca <InfoTooltip text="Để lại tin nhắn hoặc tình trạng ca làm cho quản lý/ca sau" /></h3>
                             <textarea
                                 className="input-field"
-                                style={{ minHeight: 80, resize: 'vertical' }}
+                                style={{ minHeight: 100, resize: 'vertical' }}
                                 placeholder="VD: Hết bánh chay lúc 10h, máy POS lỗi..."
                                 value={ghiChu}
                                 onChange={e => setGhiChu(e.target.value)}
@@ -279,51 +279,56 @@ export default function NhanVien() {
 
                     {/* Thu tiền & Bàn giao */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                        <div className="card" style={{ background: 'var(--primary-light)', border: 'none' }}>
+                        <div className="card animate-slide-up stagger-4" style={{ border: '1px solid var(--gray-200)', marginBottom: 0 }}>
                             <h3 className="card-title">💰 Thu tiền ca {loaiCa === 'sang' ? 'Sáng' : 'Chiều'}</h3>
-                            <div className="flex-between" style={{ marginBottom: 12 }}>
-                                <label style={{ fontWeight: '600' }}>🛵 Grab:</label>
-                                <input className="input-field" style={{ width: 140, textAlign: 'right' }} type="number" min="0" value={grab} onChange={e => setGrab(e.target.value)} />
+                            <div className="flex-between" style={{ marginBottom: 16 }}>
+                                <label style={{ fontWeight: '600', color: 'var(--text-muted)' }}>🛵 Grab:</label>
+                                <input className="input-field" style={{ width: 160, textAlign: 'right' }} type="number" min="0" value={grab} onChange={e => setGrab(e.target.value)} />
                             </div>
-                            <div className="flex-between" style={{ marginBottom: 12 }}>
-                                <label style={{ fontWeight: '600' }}>🏦 Chuyển khoản:</label>
-                                <input className="input-field" style={{ width: 140, textAlign: 'right' }} type="number" min="0" value={chuyenKhoan} onChange={e => setChuyenKhoan(e.target.value)} />
+                            <div className="flex-between" style={{ marginBottom: 16 }}>
+                                <label style={{ fontWeight: '600', color: 'var(--text-muted)' }}>🏦 Chuyển khoản:</label>
+                                <input className="input-field" style={{ width: 160, textAlign: 'right' }} type="number" min="0" value={chuyenKhoan} onChange={e => setChuyenKhoan(e.target.value)} />
                             </div>
-                            <div className="flex-between" style={{ marginBottom: 12 }}>
-                                <label style={{ fontWeight: '600' }}>💵 Tiền mặt:</label>
-                                <input className="input-field" style={{ width: 140, textAlign: 'right' }} type="number" min="0" value={tienMat} onChange={e => setTienMat(e.target.value)} />
+                            <div className="flex-between" style={{ marginBottom: 16 }}>
+                                <label style={{ fontWeight: '600', color: 'var(--text-muted)' }}>💵 Tiền mặt:</label>
+                                <input className="input-field" style={{ width: 160, textAlign: 'right' }} type="number" min="0" value={tienMat} onChange={e => setTienMat(e.target.value)} />
                             </div>
-                            <div className="flex-between" style={{ borderTop: '2px solid var(--gray-200)', paddingTop: 12 }}>
-                                <label style={{ fontWeight: 'bold' }}>Tổng thu:</label>
-                                <span style={{ fontSize: 18, fontWeight: 'bold', color: 'var(--success)' }}>
+                            <div className="flex-between" style={{ borderTop: '1px dashed var(--gray-200)', paddingTop: 16, marginTop: 16 }}>
+                                <label style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>Tổng thu:</label>
+                                <span style={{ fontSize: 20, fontWeight: 'bold', color: 'var(--success)' }}>
                                     {tongThu.toLocaleString('vi-VN')}đ
                                 </span>
                             </div>
                         </div>
 
-                        <div className="card">
+                        <div className="card animate-slide-up stagger-5" style={{ marginBottom: 0 }}>
                             <h3 className="card-title">🤝 Bàn giao tiền mặt <InfoTooltip text="Số tiền mặt thực tế bạn để lại tại quán sau khi kết thúc ca" /></h3>
-                            <div className="flex-between" style={{ marginBottom: 12 }}>
-                                <label>Tiền mặt thực tế:</label>
-                                <span style={{ fontSize: 16, fontWeight: 'bold', color: 'var(--text-main)' }}>
+                            <div className="flex-between" style={{ marginBottom: 16 }}>
+                                <label style={{ color: 'var(--text-muted)' }}>Tiền mặt thực tế:</label>
+                                <span style={{ fontSize: 18, fontWeight: 'bold', color: 'var(--text-main)' }}>
                                     {tienMatThucTe.toLocaleString('vi-VN')}đ
                                 </span>
                             </div>
-                            <div className="flex-between" style={{ marginBottom: 12 }}>
-                                <label style={{ fontWeight: '600' }}>Số tiền bàn giao:</label>
-                                <input className="input-field" style={{ width: 140, textAlign: 'right' }} type="number" min="0" value={banGiao} onChange={e => setBanGiao(e.target.value)} />
+                            <div className="flex-between" style={{ marginBottom: 16 }}>
+                                <label style={{ fontWeight: '600', color: 'var(--text-main)' }}>Số tiền bàn giao:</label>
+                                <input className="input-field" style={{ width: 160, textAlign: 'right', fontSize: 16, fontWeight: 'bold' }} type="number" min="0" value={banGiao} onChange={e => setBanGiao(e.target.value)} />
                             </div>
-                            <div className="flex-between" style={{ borderTop: '2px solid var(--gray-200)', paddingTop: 12 }}>
-                                <label style={{ fontWeight: 'bold' }}>Thiếu / Dư:</label>
-                                <span style={{ fontSize: 18, fontWeight: 'bold', color: thieuDu >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                            <div className="flex-between" style={{ borderTop: '1px dashed var(--gray-200)', paddingTop: 16, marginTop: 16 }}>
+                                <label style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>Thiếu / Dư:</label>
+                                <span style={{ 
+                                    fontSize: 20, fontWeight: 'bold', 
+                                    color: thieuDu >= 0 ? 'var(--success)' : 'var(--danger)',
+                                    background: thieuDu >= 0 ? 'var(--success-bg)' : 'var(--danger-bg)',
+                                    padding: '4px 12px', borderRadius: 8
+                                }}>
                                     {thieuDu >= 0 ? '+' : ''}{thieuDu.toLocaleString('vi-VN')}đ
                                 </span>
                             </div>
                         </div>
 
-                        <button className="btn btn-primary" style={{ width: '100%', padding: '16px', fontSize: 16, background: 'var(--danger)' }}
+                        <button className="btn btn-danger animate-slide-up stagger-5" style={{ width: '100%', padding: '18px', fontSize: 16, letterSpacing: 1 }}
                             onClick={() => setShowXacNhan(true)}>
-                            ⏹ Kết thúc & Xem tóm tắt
+                            ⏹ Kết Thúc & Xem Tóm Tắt
                         </button>
                     </div>
                 </div>
@@ -346,9 +351,9 @@ export default function NhanVien() {
 
     return (
         <SidebarLayout menuItems={MENU} activeTab={tab} onTabChange={setTab}>
-            <div style={{ marginBottom: 24 }}>
-                <h1 style={{ margin: 0 }}>Chào, {user.ten} 👋</h1>
-                <p style={{ color: 'var(--text-muted)' }}>
+            <div style={{ marginBottom: 32 }} className="animate-fade-in">
+                <h1 style={{ margin: 0, fontSize: 28, color: 'var(--text-main)' }}>Chào, <span style={{ color: 'var(--primary)' }}>{user.ten}</span> 👋</h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: 15, marginTop: 8 }}>
                     {step === 'dang_lam' ? `Đang trong ca làm việc: ${loaiCa === 'sang' ? 'Ca Sáng' : 'Ca Chiều'}` : 'Chúc bạn một ca làm việc vui vẻ và suôn sẻ!'}
                 </p>
             </div>

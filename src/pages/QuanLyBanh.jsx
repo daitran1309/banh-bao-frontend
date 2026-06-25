@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
+import { Plus, Edit2, EyeOff, Eye } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -60,57 +61,88 @@ export default function QuanLyBanh() {
 
     return (
         <div style={s.wrap} className="animate-fade-in">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }} className="animate-slide-up">
-                <h3 style={{ margin: 0, color: 'var(--text-main)' }}>🥟 Quản lý loại bánh</h3>
-                <button style={s.btnAdd} onClick={() => moForm()}>+ Thêm bánh</button>
+            <div className="card animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, padding: '20px 24px' }}>
+                <h3 style={{ margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 24 }}>🥟</span> Quản lý loại bánh
+                </h3>
+                <button className="btn btn-primary" onClick={() => moForm()}>
+                    <Plus size={18} /> Thêm bánh mới
+                </button>
             </div>
 
             {loading ? (
-                <p style={{ textAlign: 'center', color: 'var(--text-muted)' }} className="animate-fade-in">Đang tải dữ liệu...</p>
+                <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 40 }} className="animate-fade-in">Đang tải dữ liệu bánh...</p>
             ) : banhs.length === 0 ? (
-                <p style={{ textAlign: 'center', color: 'var(--text-muted)' }} className="animate-fade-in">Chưa có dữ liệu bánh</p>
+                <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 40 }} className="animate-fade-in">Chưa có dữ liệu bánh</p>
             ) : (
-                banhs.map((b, i) => (
-                    <div key={i} style={{ ...s.banhCard, opacity: b.trang_thai === 'inactive' ? 0.6 : 1 }} className={`animate-slide-up stagger-${(i % 5) + 1}`}>
-                        <div style={{ flex: 1 }}>
-                            <div style={s.banhName}>
-                                {b.ten_banh}
-                                {b.trang_thai === 'inactive' && <span style={s.inactiveBadge}>Ẩn</span>}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+                    {banhs.map((b, i) => (
+                        <div key={i} className={`card animate-slide-up stagger-${(i % 5) + 1}`} style={{ ...s.banhCard, opacity: b.trang_thai === 'inactive' ? 0.6 : 1, marginBottom: 0 }}>
+                            <div style={{ flex: 1 }}>
+                                <div style={s.banhName}>
+                                    {b.ten_banh}
+                                    {b.trang_thai === 'inactive' && <span className="badge" style={s.inactiveBadge}>Đã ẩn</span>}
+                                </div>
+                                <div style={s.banhInfo}>
+                                    <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>{Number(b.gia).toLocaleString('vi-VN')}đ</span>
+                                    <span style={{ margin: '0 8px', color: 'var(--gray-200)' }}>|</span>
+                                    <span>📦 {b.so_cai_moi_bich} cái/bịch</span>
+                                </div>
                             </div>
-                            <div style={s.banhInfo}>
-                                💰 {Number(b.gia).toLocaleString('vi-VN')}đ &nbsp;|&nbsp;
-                                📦 {b.so_cai_moi_bich} cái/bịch
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <button className="btn btn-outline" style={s.actionBtn} onClick={() => moForm(b)} title="Sửa">
+                                    <Edit2 size={16} />
+                                </button>
+                                {b.trang_thai === 'active'
+                                    ? <button className="btn btn-outline" style={{ ...s.actionBtn, borderColor: 'rgba(255,77,79,0.3)', color: 'var(--danger)' }} onClick={() => handleAn(b)} title="Ẩn">
+                                        <EyeOff size={16} />
+                                    </button>
+                                    : <button className="btn btn-outline" style={{ ...s.actionBtn, borderColor: 'rgba(74,222,128,0.3)', color: 'var(--success)' }} onClick={() => handleHienLai(b)} title="Hiện">
+                                        <Eye size={16} />
+                                    </button>
+                                }
                             </div>
                         </div>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                            <button style={s.btnEdit} onClick={() => moForm(b)}>✏️</button>
-                            {b.trang_thai === 'active'
-                                ? <button style={s.btnHide} onClick={() => handleAn(b)}>🙈</button>
-                                : <button style={s.btnShow} onClick={() => handleHienLai(b)}>👁️</button>
-                            }
-                        </div>
-                    </div>
-                ))
+                    ))}
+                </div>
             )}
 
             {/* Form thêm/sửa */}
             {showForm && (
-                <div style={s.overlay} className="animate-fade-in">
-                    <div style={s.modal} className="animate-slide-up">
-                        <h3 style={{ margin: '0 0 12px', textAlign: 'center' }}>
-                            {editing ? '✏️ Sửa bánh' : '➕ Thêm bánh mới'}
+                <div className="modal-overlay animate-fade-in" style={s.overlay}>
+                    <div className="modal-content animate-pop-in" style={s.modal}>
+                        <h3 style={{ margin: '0 0 20px', textAlign: 'center', color: 'var(--text-main)', fontSize: '1.4rem' }}>
+                            {editing ? '✏️ Sửa thông tin bánh' : '➕ Thêm bánh mới'}
                         </h3>
-                        <input style={s.input} placeholder="Tên bánh" value={form.ten_banh}
-                            onChange={e => setForm({ ...form, ten_banh: e.target.value })} />
-                        <input style={s.input} type="number" placeholder="Giá (VD: 15000)" value={form.gia}
-                            onChange={e => setForm({ ...form, gia: e.target.value })} />
-                        <input style={s.input} type="number" placeholder="Số cái mỗi bịch" value={form.so_cai_moi_bich}
-                            onChange={e => setForm({ ...form, so_cai_moi_bich: e.target.value })} />
-                        {msg && <p style={{ textAlign: 'center', color: msg.includes('✅') ? 'var(--success)' : 'var(--danger)' }}>{msg}</p>}
-                        <div style={{ display: 'flex', gap: 8 }}>
-                            <button style={s.btnCancel} onClick={() => setShowForm(false)}>Hủy</button>
-                            <button style={s.btnSave} onClick={handleLuu} disabled={loading}>
-                                {loading ? 'Đang lưu...' : '💾 Lưu'}
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            <div>
+                                <label style={s.formLabel}>Tên bánh</label>
+                                <input className="input-field" placeholder="Nhập tên bánh..." value={form.ten_banh}
+                                    onChange={e => setForm({ ...form, ten_banh: e.target.value })} />
+                            </div>
+                            <div>
+                                <label style={s.formLabel}>Giá bán (VNĐ)</label>
+                                <input className="input-field" type="number" placeholder="Ví dụ: 15000" value={form.gia}
+                                    onChange={e => setForm({ ...form, gia: e.target.value })} />
+                            </div>
+                            <div>
+                                <label style={s.formLabel}>Số lượng cái/bịch</label>
+                                <input className="input-field" type="number" placeholder="Ví dụ: 10" value={form.so_cai_moi_bich}
+                                    onChange={e => setForm({ ...form, so_cai_moi_bich: e.target.value })} />
+                            </div>
+                        </div>
+
+                        {msg && <div style={{ 
+                            marginTop: 16, padding: 12, borderRadius: 8, textAlign: 'center', fontWeight: 'bold',
+                            background: msg.includes('✅') ? 'var(--success-bg)' : 'var(--danger-bg)',
+                            color: msg.includes('✅') ? 'var(--success)' : 'var(--danger)'
+                        }}>{msg}</div>}
+
+                        <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+                            <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowForm(false)}>Hủy</button>
+                            <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleLuu} disabled={loading}>
+                                {loading ? 'Đang lưu...' : '💾 Lưu lại'}
                             </button>
                         </div>
                     </div>
@@ -122,47 +154,26 @@ export default function QuanLyBanh() {
 
 const s = {
     wrap: { padding: '0 0 24px' },
-    btnAdd: {
-        padding: '8px 16px', borderRadius: 8, border: 'none',
-        background: 'var(--success)', color: '#fff', cursor: 'pointer', fontWeight: 'bold', fontSize: 15
-    },
     banhCard: {
-        background: '#fff', borderRadius: 12, padding: 16, marginBottom: 10,
-        border: '2px solid var(--gray-200)', display: 'flex', alignItems: 'center'
+        display: 'flex', alignItems: 'center', padding: '20px'
     },
-    banhName: { fontWeight: 'bold', fontSize: 16, color: 'var(--text-main)', marginBottom: 4 },
-    banhInfo: { fontSize: 14, color: 'var(--text-muted)' },
+    banhName: { fontWeight: '700', fontSize: 18, color: 'var(--text-main)', marginBottom: 8, display: 'flex', alignItems: 'center' },
+    banhInfo: { fontSize: 14, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' },
     inactiveBadge: {
-        marginLeft: 8, fontSize: 12, background: 'var(--danger-bg)', color: 'var(--danger)',
-        padding: '2px 8px', borderRadius: 20
+        marginLeft: 10, fontSize: 11, background: 'var(--danger-bg)', color: 'var(--danger)',
+        padding: '4px 10px', textTransform: 'uppercase'
     },
-    btnEdit: {
-        padding: '6px 10px', borderRadius: 8, border: '2px solid var(--gray-200)',
-        background: '#fff', cursor: 'pointer', fontSize: 16
-    },
-    btnHide: {
-        padding: '6px 10px', borderRadius: 8, border: '2px solid var(--danger-bg)',
-        background: '#fff', cursor: 'pointer', fontSize: 16
-    },
-    btnShow: {
-        padding: '6px 10px', borderRadius: 8, border: '2px solid var(--success-bg)',
-        background: '#fff', cursor: 'pointer', fontSize: 16
+    actionBtn: {
+        padding: 10, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center'
     },
     overlay: {
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+        position: 'fixed', inset: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16
     },
     modal: {
-        background: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 360,
-        display: 'flex', flexDirection: 'column', gap: 12
+        width: '100%', maxWidth: 420, padding: 32,
     },
-    input: { padding: '12px 16px', fontSize: 16, borderRadius: 10, border: '2px solid var(--gray-200)' },
-    btnCancel: {
-        flex: 1, padding: 12, borderRadius: 10, border: '2px solid var(--gray-200)',
-        background: '#fff', cursor: 'pointer', fontSize: 15
-    },
-    btnSave: {
-        flex: 1, padding: 12, borderRadius: 10, border: 'none',
-        background: 'var(--primary)', color: '#fff', cursor: 'pointer', fontSize: 15, fontWeight: 'bold'
-    },
+    formLabel: {
+        display: 'block', marginBottom: 8, color: 'var(--text-muted)', fontSize: 13, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5
+    }
 }

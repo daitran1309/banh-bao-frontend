@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts'
 import InfoTooltip from '../components/InfoTooltip'
+import { motion } from 'framer-motion'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -94,19 +95,19 @@ export default function BaoCao({ nhanVienId }) {
         if (active && payload && payload.length) {
             return (
                 <div style={{
-                    background: '#fff',
-                    padding: '8px 12px',
-                    border: 'none',
+                    background: 'rgba(11, 15, 25, 0.9)',
+                    backdropFilter: 'blur(10px)',
+                    padding: '12px 16px',
+                    border: '1px solid var(--gray-200)',
                     borderRadius: 12,
-                    boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-                    textAlign: 'center',
-                    position: 'relative'
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+                    textAlign: 'center'
                 }}>
-                    <div style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 'bold', marginBottom: 4 }}>{label}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
-                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#FF6A00' }}></div>
-                        <span style={{ fontWeight: 'bold', color: 'var(--text-main)', fontSize: 15 }}>
-                            {payload[0].value.toLocaleString('vi-VN')}
+                    <div style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: '600', marginBottom: 8 }}>{label}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--primary)', boxShadow: '0 0 10px var(--primary)' }}></div>
+                        <span style={{ fontWeight: 'bold', color: 'var(--white)', fontSize: 16 }}>
+                            {payload[0].value.toLocaleString('vi-VN')}đ
                         </span>
                     </div>
                 </div>
@@ -116,13 +117,13 @@ export default function BaoCao({ nhanVienId }) {
     }
 
     return (
-        <div style={s.wrap}>
+        <div className="animate-fade-in">
             {/* Bộ lọc ngày */}
-            <div style={s.filterBox}>
+            <div className="card" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end', marginBottom: 24 }}>
                 {!nhanVienId && (
                     <div style={s.filterRow}>
                         <label style={s.label}>Nhân viên:</label>
-                        <select className="input-field" value={selectedNv} onChange={e => setSelectedNv(e.target.value)} style={{ padding: '8px 12px', borderRadius: 8, border: '2px solid var(--gray-200)' }}>
+                        <select className="input-field select-field" value={selectedNv} onChange={e => setSelectedNv(e.target.value)}>
                             <option value="">Tất cả nhân viên</option>
                             {danhSachNv.map(nv => (
                                 <option key={nv.id} value={nv.id}>{nv.ten}</option>
@@ -132,7 +133,7 @@ export default function BaoCao({ nhanVienId }) {
                 )}
                 <div style={s.filterRow}>
                     <label style={s.label}>Thời gian:</label>
-                    <select className="input-field" value={preset} onChange={e => handlePresetChange(e.target.value)} style={{ padding: '8px 12px', borderRadius: 8, border: '2px solid var(--gray-200)' }}>
+                    <select className="input-field select-field" value={preset} onChange={e => handlePresetChange(e.target.value)}>
                         <option value="hom_nay">Hôm nay</option>
                         <option value="tuan_nay">Tuần này</option>
                         <option value="thang_nay">Tháng này</option>
@@ -144,118 +145,151 @@ export default function BaoCao({ nhanVienId }) {
                 </div>
                 <div style={s.filterRow}>
                     <label style={s.label}>Từ ngày:</label>
-                    <input type="date" value={tuNgay} onChange={e => { setTuNgay(e.target.value); setPreset('tuy_chinh') }} style={s.dateInput} />
+                    <input type="date" value={tuNgay} onChange={e => { setTuNgay(e.target.value); setPreset('tuy_chinh') }} className="input-field" />
                 </div>
                 <div style={s.filterRow}>
                     <label style={s.label}>Đến ngày:</label>
-                    <input type="date" value={denNgay} onChange={e => { setDenNgay(e.target.value); setPreset('tuy_chinh') }} style={s.dateInput} />
+                    <input type="date" value={denNgay} onChange={e => { setDenNgay(e.target.value); setPreset('tuy_chinh') }} className="input-field" />
                 </div>
-                <button style={s.btnLoad} onClick={loadData} disabled={loading}>
-                    {loading ? 'Đang tải...' : '🔍 Xem'}
+                <button className="btn btn-primary" onClick={loadData} disabled={loading} style={{ padding: '14px 24px' }}>
+                    {loading ? 'Đang tải...' : '🔍 Xem dữ liệu'}
                 </button>
             </div>
 
             {loading ? (
-                <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 24 }} className="animate-fade-in">Đang tải dữ liệu...</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginTop: 24 }}>
+                    <div style={{ display: 'flex', gap: 24 }}>
+                        <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ flex: 1, height: 120, borderRadius: 20, background: 'var(--glass-bg)' }} />
+                        <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }} style={{ flex: 1, height: 120, borderRadius: 20, background: 'var(--glass-bg)' }} />
+                    </div>
+                    <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }} style={{ width: '100%', height: 350, borderRadius: 20, background: 'var(--glass-bg)' }} />
+                </div>
             ) : !data ? (
-                <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 24 }} className="animate-fade-in">Không có dữ liệu</p>
+                <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 40 }} className="animate-fade-in">Không có dữ liệu trong khoảng thời gian này</p>
             ) : (
                 <>
                 {/* Tổng quan */}
                 <div style={s.summaryRow}>
-                    <div style={{ ...s.summaryCard, background: 'var(--primary)' }} className="animate-slide-up">
+                    <div style={{ ...s.summaryCard, background: 'linear-gradient(135deg, rgba(108, 93, 211, 0.2), rgba(108, 93, 211, 0.05))', border: '1px solid rgba(108, 93, 211, 0.3)' }} className="animate-slide-up stagger-1">
                         <div style={s.summaryLabel}>Tổng doanh thu</div>
-                        <div style={s.summaryVal}>{data.tong_doanh_thu.toLocaleString('vi-VN')}đ</div>
+                        <div style={{ ...s.summaryVal, color: 'var(--primary)', textShadow: '0 0 20px rgba(108, 93, 211, 0.5)' }}>
+                            {data.tong_doanh_thu.toLocaleString('vi-VN')}đ
+                        </div>
                     </div>
-                    <div style={{ ...s.summaryCard, background: 'var(--accent)' }} className="animate-slide-up">
+                    <div style={{ ...s.summaryCard, background: 'linear-gradient(135deg, rgba(255, 117, 216, 0.2), rgba(255, 117, 216, 0.05))', border: '1px solid rgba(255, 117, 216, 0.3)' }} className="animate-slide-up stagger-2">
                         <div style={s.summaryLabel}>Số ca đã làm</div>
-                        <div style={s.summaryVal}>{data.tong_ca} ca</div>
+                        <div style={{ ...s.summaryVal, color: 'var(--accent)', textShadow: '0 0 20px rgba(255, 117, 216, 0.5)' }}>
+                            {data.tong_ca} ca
+                        </div>
                     </div>
                 </div>
 
                 {/* Biểu đồ doanh thu */}
-                <div style={s.card} className="animate-slide-up">
-                    <h3 style={s.cardTitle}>
+                <div className="card animate-slide-up stagger-3">
+                    <h3 className="card-title">
                         📈 Doanh thu theo ngày 
                         <InfoTooltip text={nhanVienId ? "Xem xu hướng doanh thu cá nhân từ các ca do chính bạn bán." : "Xem xu hướng doanh thu qua các ngày. Rê chuột vào điểm để xem chi tiết."} />
                     </h3>
-                    <ResponsiveContainer width="100%" height={260}>
+                    <ResponsiveContainer width="100%" height={300}>
                         <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                             <defs>
                                 <linearGradient id="colorDoanhThu" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#FF6A00" stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor="#FF6A00" stopOpacity={0}/>
+                                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.4}/>
+                                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--gray-200)" />
                             <XAxis dataKey="ngay" tick={{ fontSize: 12, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} dy={10} />
                             <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted)' }} tickFormatter={v => (v / 1000) + 'k'} axisLine={false} tickLine={false} dx={-10} />
-                            <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#FF6A00', strokeWidth: 1, strokeDasharray: '4 4', opacity: 0.4 }} />
+                            <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--primary)', strokeWidth: 1, strokeDasharray: '4 4', opacity: 0.5 }} />
                             <Area 
                                 type="monotone" 
                                 dataKey="Doanh thu" 
-                                stroke="#FF6A00" 
+                                stroke="var(--primary)" 
                                 strokeWidth={3} 
                                 fillOpacity={1} 
                                 fill="url(#colorDoanhThu)" 
-                                dot={{ r: 4, fill: '#fff', stroke: '#FF6A00', strokeWidth: 2 }}
-                                activeDot={{ r: 7, fill: '#FF6A00', stroke: '#fff', strokeWidth: 3, style: { filter: 'drop-shadow(0px 2px 4px rgba(255,106,0,0.4))' } }}
+                                dot={{ r: 4, fill: '#1a153a', stroke: 'var(--primary)', strokeWidth: 2 }}
+                                activeDot={{ r: 7, fill: 'var(--primary)', stroke: '#fff', strokeWidth: 3, style: { filter: 'drop-shadow(0px 0px 10px rgba(108, 93, 211, 0.8))' } }}
                                 animationDuration={1500}
                             />
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
 
-                {/* So sánh ca */}
-                {soSanh && (
-                    <div style={s.card}>
-                        <h3 style={s.cardTitle}>⚖️ So sánh Ca Sáng vs Ca Chiều <InfoTooltip text="Đánh giá hiệu suất bán hàng giữa các ca làm việc" /></h3>
-                        <ResponsiveContainer width="100%" height={200}>
-                            <BarChart data={[
-                                { name: '☀️ Ca Sáng', 'Doanh thu': soSanh.sang.tong_dt, 'TB/ca': soSanh.sang.tb_moi_ca },
-                                { name: '🌙 Ca Chiều', 'Doanh thu': soSanh.chieu.tong_dt, 'TB/ca': soSanh.chieu.tb_moi_ca },
-                            ]}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" />
-                                <YAxis tickFormatter={v => (v / 1000) + 'k'} />
-                                <Tooltip formatter={v => v.toLocaleString('vi-VN') + 'đ'} />
-                                <Legend />
-                                <Bar dataKey="Doanh thu" fill="var(--primary)" />
-                                <Bar dataKey="TB/ca" fill="var(--accent)" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                        <div style={s.soSanhRow}>
-                            <div style={s.soSanhCard}>
-                                <div style={{ color: 'var(--primary)', fontWeight: 'bold' }}>☀️ Ca Sáng</div>
-                                <div>{soSanh.sang.so_ca} ca</div>
-                                <div style={{ color: 'var(--danger)' }}>{soSanh.sang.tong_dt.toLocaleString('vi-VN')}đ</div>
-                                <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>TB: {soSanh.sang.tb_moi_ca.toLocaleString('vi-VN')}đ/ca</div>
-                            </div>
-                            <div style={s.soSanhCard}>
-                                <div style={{ color: 'var(--accent)', fontWeight: 'bold' }}>🌙 Ca Chiều</div>
-                                <div>{soSanh.chieu.so_ca} ca</div>
-                                <div style={{ color: 'var(--danger)' }}>{soSanh.chieu.tong_dt.toLocaleString('vi-VN')}đ</div>
-                                <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>TB: {soSanh.chieu.tb_moi_ca.toLocaleString('vi-VN')}đ/ca</div>
+                {/* So sánh ca & Bánh bán chạy */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+                    {soSanh && (
+                        <div className="card animate-slide-up stagger-4" style={{ flex: '1 1 400px', marginBottom: 0 }}>
+                            <h3 className="card-title">⚖️ So sánh Ca Sáng vs Chiều <InfoTooltip text="Đánh giá hiệu suất bán hàng giữa các ca làm việc" /></h3>
+                            <ResponsiveContainer width="100%" height={220}>
+                                <BarChart data={[
+                                    { name: '☀️ Ca Sáng', 'Doanh thu': soSanh.sang.tong_dt, 'TB/ca': soSanh.sang.tb_moi_ca },
+                                    { name: '🌙 Ca Chiều', 'Doanh thu': soSanh.chieu.tong_dt, 'TB/ca': soSanh.chieu.tb_moi_ca },
+                                ]}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--gray-200)" />
+                                    <XAxis dataKey="name" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                                    <YAxis tickFormatter={v => (v / 1000) + 'k'} tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
+                                    <Tooltip 
+                                        formatter={v => v.toLocaleString('vi-VN') + 'đ'} 
+                                        contentStyle={{ background: 'rgba(11,15,25,0.9)', border: '1px solid var(--gray-200)', borderRadius: 8, color: '#fff' }}
+                                        itemStyle={{ color: '#fff' }}
+                                    />
+                                    <Legend wrapperStyle={{ paddingTop: 10 }} />
+                                    <Bar dataKey="Doanh thu" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="TB/ca" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                            <div style={s.soSanhRow}>
+                                <div style={{ ...s.soSanhCard, borderTop: '2px solid var(--primary)' }}>
+                                    <div style={{ color: 'var(--text-main)', fontWeight: 'bold' }}>☀️ Ca Sáng</div>
+                                    <div style={{ color: 'var(--text-muted)', fontSize: 14 }}>{soSanh.sang.so_ca} ca</div>
+                                    <div style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: 16 }}>{soSanh.sang.tong_dt.toLocaleString('vi-VN')}đ</div>
+                                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>TB: {soSanh.sang.tb_moi_ca.toLocaleString('vi-VN')}đ/ca</div>
+                                </div>
+                                <div style={{ ...s.soSanhCard, borderTop: '2px solid var(--accent)' }}>
+                                    <div style={{ color: 'var(--text-main)', fontWeight: 'bold' }}>🌙 Ca Chiều</div>
+                                    <div style={{ color: 'var(--text-muted)', fontSize: 14 }}>{soSanh.chieu.so_ca} ca</div>
+                                    <div style={{ color: 'var(--accent)', fontWeight: 'bold', fontSize: 16 }}>{soSanh.chieu.tong_dt.toLocaleString('vi-VN')}đ</div>
+                                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>TB: {soSanh.chieu.tb_moi_ca.toLocaleString('vi-VN')}đ/ca</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Bánh bán chạy */}
-                <div style={s.card} className="animate-slide-up">
-                    <h3 style={s.cardTitle}>🏆 Bánh bán chạy <InfoTooltip text="Top bánh có số lượng bán nhiều nhất trong khoảng thời gian chọn" /></h3>
-                    {data.theo_loai.slice(0, 10).map((b, i) => (
-                        <div key={i} style={s.banhRow}>
-                            <div style={s.rank}>{i + 1}</div>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 'bold' }}>{b.ten_banh}</div>
-                                <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{b.tong_ban} cái</div>
-                            </div>
-                            <div style={{ color: 'var(--danger)', fontWeight: 'bold' }}>
-                                {b.tong_dt.toLocaleString('vi-VN')}đ
-                            </div>
+                    {/* Bánh bán chạy */}
+                    <motion.div 
+                        className="card" 
+                        style={{ flex: '1 1 400px', marginBottom: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                    >
+                        <h3 className="card-title">🏆 Top Sản Phẩm Bán Chạy <InfoTooltip text="Top bánh có số lượng bán nhiều nhất trong khoảng thời gian chọn" /></h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {data.theo_loai.slice(0, 10).map((b, i) => (
+                                <motion.div 
+                                    key={i} 
+                                    style={s.banhRow}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.3, delay: i * 0.05 }}
+                                    whileHover={{ scale: 1.02, background: 'var(--primary-light)' }}
+                                >
+                                    <div style={{ ...s.rank, background: i < 3 ? 'var(--primary)' : 'var(--gray-200)', color: i < 3 ? '#fff' : 'var(--text-muted)' }}>
+                                        {i + 1}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontWeight: '600', color: 'var(--text-main)' }}>{b.ten_banh}</div>
+                                        <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{b.tong_ban} cái đã bán</div>
+                                    </div>
+                                    <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>
+                                        {b.tong_dt.toLocaleString('vi-VN')}đ
+                                    </div>
+                                </motion.div>
+                            ))}
                         </div>
-                    ))}
+                    </motion.div>
                 </div>
                 </>
             )}
@@ -264,35 +298,21 @@ export default function BaoCao({ nhanVienId }) {
 }
 
 const s = {
-    wrap: { padding: '0 0 24px' },
-    filterBox: {
-        background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16,
-        border: '2px solid var(--gray-200)', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'flex-end'
-    },
-    filterRow: { display: 'flex', flexDirection: 'column', gap: 4 },
-    label: { fontSize: 13, color: 'var(--text-muted)', fontWeight: 'bold' },
-    dateInput: { padding: '8px 12px', fontSize: 15, borderRadius: 8, border: '2px solid var(--gray-200)' },
-    btnLoad: {
-        padding: '8px 20px', fontSize: 15, borderRadius: 8, border: 'none',
-        background: 'var(--primary)', color: '#fff', cursor: 'pointer', fontWeight: 'bold'
-    },
-    summaryRow: { display: 'flex', gap: 12, marginBottom: 16 },
-    summaryCard: { flex: 1, borderRadius: 12, padding: 16, color: '#fff', textAlign: 'center' },
-    summaryLabel: { fontSize: 13, opacity: 0.9 },
-    summaryVal: { fontSize: 22, fontWeight: 'bold', marginTop: 4 },
-    card: {
-        background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16,
-        border: '2px solid var(--gray-200)'
-    },
-    cardTitle: { margin: '0 0 12px', color: 'var(--text-main)', fontSize: 16 },
-    soSanhRow: { display: 'flex', gap: 12, marginTop: 12 },
-    soSanhCard: { flex: 1, background: 'var(--primary-light)', borderRadius: 10, padding: 12, textAlign: 'center', lineHeight: 1.8 },
+    filterRow: { display: 'flex', flexDirection: 'column', gap: 6 },
+    label: { fontSize: 13, color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+    summaryRow: { display: 'flex', gap: 24, marginBottom: 24, flexWrap: 'wrap' },
+    summaryCard: { flex: '1 1 200px', borderRadius: 20, padding: 24, textAlign: 'center', backdropFilter: 'blur(10px)' },
+    summaryLabel: { fontSize: 14, color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1 },
+    summaryVal: { fontSize: 32, fontWeight: '800', marginTop: 8 },
+    soSanhRow: { display: 'flex', gap: 16, marginTop: 24 },
+    soSanhCard: { flex: 1, border: '1px solid var(--gray-200)', borderRadius: 12, padding: 16, textAlign: 'center', lineHeight: 1.6 },
     banhRow: {
-        display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
-        borderBottom: '1px solid var(--primary-light)'
+        display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px',
+        borderRadius: 12,
+        border: '1px solid var(--gray-200)', transition: 'var(--transition)'
     },
     rank: {
-        width: 28, height: 28, borderRadius: '50%', background: 'var(--primary-light)',
-        color: 'var(--text-main)', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center'
+        width: 32, height: 32, borderRadius: '50%',
+        fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14
     },
 }
