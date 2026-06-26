@@ -15,11 +15,19 @@ export default function Login() {
     const [danhSach, setDanhSach] = useState([])
     const [ten, setTen] = useState('')
     const [mat_khau, setMatKhau] = useState('')
+    const [remember, setRemember] = useState(() => localStorage.getItem('remember_password') === 'true')
     const [loading, setLoading] = useState(false)
     const [loadingDS, setLoadingDS] = useState(true)
 
     // Load danh sách tên từ Sheet khi mở trang
     useEffect(() => {
+        if (remember) {
+            const savedTen = localStorage.getItem('saved_ten')
+            const savedPw = localStorage.getItem('saved_pw')
+            if (savedTen) setTen(savedTen)
+            if (savedPw) setMatKhau(atob(savedPw))
+        }
+
         axios.get(`${API}/api/auth/danh-sach`)
             .then(res => setDanhSach(res.data))
             .catch(() => toast.error('Không tải được danh sách nhân viên'))
@@ -34,6 +42,15 @@ export default function Login() {
         setLoading(true)
         try {
             await login(ten, mat_khau)
+            if (remember) {
+                localStorage.setItem('remember_password', 'true')
+                localStorage.setItem('saved_ten', ten)
+                localStorage.setItem('saved_pw', btoa(mat_khau))
+            } else {
+                localStorage.removeItem('remember_password')
+                localStorage.removeItem('saved_ten')
+                localStorage.removeItem('saved_pw')
+            }
             toast.success(`Xin chào, ${ten}!`)
         } catch {
             toast.error('Sai tên hoặc mật khẩu!')
@@ -127,6 +144,18 @@ export default function Login() {
                     onChange={e => setMatKhau(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleLogin()}
                 />
+                </BubbleItem>
+
+                <BubbleItem>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)', fontSize: '0.9rem', cursor: 'pointer', marginTop: -4 }}>
+                    <input 
+                        type="checkbox" 
+                        checked={remember} 
+                        onChange={e => setRemember(e.target.checked)} 
+                        style={{ accentColor: 'var(--primary)', width: 16, height: 16, cursor: 'pointer' }}
+                    />
+                    Lưu thông tin đăng nhập cho lần sau
+                </label>
                 </BubbleItem>
 
                 <BubbleItem>

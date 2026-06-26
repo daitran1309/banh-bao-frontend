@@ -24,7 +24,8 @@ export function AuthProvider({ children }) {
     function logout() {
         setUser(null)
         setToken(null)
-        localStorage.clear()
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
     }
 
     function updateUser(newUser) {
