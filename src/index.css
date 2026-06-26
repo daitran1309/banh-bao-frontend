@@ -413,3 +413,35 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid rgba(255,255,255,0.05);
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
+
+/* Ẩn thanh cuộn */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Hiệu ứng Mac Dock cho Sidebar */
+.dock-item {
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  transform: scale(1) translateX(0);
+  transform-origin: left center;
+}
+
+/* Mục đang được di chuột */
+.dock-item:hover {
+  transform: scale(1.06) translateX(8px) !important;
+  z-index: 10;
+}
+
+/* Mục liền sau mục đang di chuột */
+.dock-item:hover + .dock-item {
+  transform: scale(1.03) translateX(4px) !important;
+}
+
+/* Mục liền trước mục đang di chuột */
+.no-scrollbar:has(.dock-item:hover) .dock-item:has(+ .dock-item:hover) {
+  transform: scale(1.03) translateX(4px) !important;
+}

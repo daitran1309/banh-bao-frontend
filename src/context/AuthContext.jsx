@@ -1,5 +1,6 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 const AuthContext = createContext()
 const API = import.meta.env.VITE_API_URL
@@ -30,6 +31,27 @@ export function AuthProvider({ children }) {
         setUser(newUser)
         localStorage.setItem('user', JSON.stringify(newUser))
     }
+
+    // Tự động bắt lỗi 401/403 từ tất cả các API để đá văng ra ngoài
+    useEffect(() => {
+        const interceptor = axios.interceptors.response.use(
+            response => response,
+            error => {
+                if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                    // Tránh báo lỗi liên tục ở màn hình login nếu gọi sai mk
+                    if (!error.config.url.includes('/api/auth/login')) {
+                        toast.error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!');
+                        logout();
+                    }
+                }
+                return Promise.reject(error);
+            }
+        );
+
+        return () => {
+            axios.interceptors.response.eject(interceptor);
+        };
+    }, []);
 
     return (
         <AuthContext.Provider value={{ user, token, login, logout, updateUser }}>

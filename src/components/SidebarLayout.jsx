@@ -31,29 +31,29 @@ export default function SidebarLayout({ children, menuItems, activeTab, onTabCha
                     </button>
                 </div>
 
-                <StaggerContainer delay={0.1}>
-                <nav style={s.nav}>
-                    {menuItems.map((item, i) => {
-                        const isActive = activeTab === item.id;
-                        return (
-                            <BubbleItem
-                                key={item.id}
-                                delay={i * 0.1}
-                                style={{ ...s.navItem, ...(isActive ? s.navItemActive : {}) }}
-                                onClick={() => {
-                                    onTabChange(item.id)
-                                    setIsMobileOpen(false)
-                                }}
-                                whileHover={{ scale: 1.05, x: 5 }}
-                            >
-                                <span style={{ color: isActive ? 'var(--white)' : 'var(--text-muted)' }}>
-                                    {item.icon}
-                                </span>
-                                <span style={{ fontWeight: isActive ? '600' : '500' }}>{item.label}</span>
-                            </BubbleItem>
-                        )
-                    })}
-                </nav>
+                <StaggerContainer delay={0.1} style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+                    <nav style={s.nav} className="no-scrollbar">
+                        {menuItems.map((item, i) => {
+                            const isActive = activeTab === item.id;
+                            return (
+                                <BubbleItem
+                                    key={item.id}
+                                    delay={i * 0.3}
+                                    style={{ ...s.navItem, ...(isActive ? s.navItemActive : {}) }}
+                                    onClick={() => {
+                                        onTabChange(item.id)
+                                        setIsMobileOpen(false)
+                                    }}
+                                    className="dock-item"
+                                >
+                                    <span style={{ color: isActive ? 'var(--white)' : 'var(--text-muted)' }}>
+                                        {item.icon}
+                                    </span>
+                                    <span style={{ fontWeight: isActive ? '600' : '500' }}>{item.label}</span>
+                                </BubbleItem>
+                            )
+                        })}
+                    </nav>
                 </StaggerContainer>
 
                 <div style={s.footer}>
@@ -72,49 +72,49 @@ export default function SidebarLayout({ children, menuItems, activeTab, onTabCha
             <main style={s.main}>
                 {/* Topbar */}
                 <StaggerContainer delay={0.2}>
-                <header style={s.topbar}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                        <BubbleItem>
-                        <button onClick={() => setIsMobileOpen(true)} className="btn btn-ghost mobile-menu-btn" style={{ padding: 8, display: 'none' }}>
-                            <Menu size={24} color="var(--white)" />
-                        </button>
-                        </BubbleItem>
-                        
-                        <BubbleItem style={s.searchBox} className="hide-on-mobile">
-                            <Search size={18} color="var(--text-muted)" />
-                            <input type="text" placeholder="Tìm kiếm..." style={s.searchInput} />
-                        </BubbleItem>
-                    </div>
+                    <header style={s.topbar}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                            <BubbleItem>
+                                <button onClick={() => setIsMobileOpen(true)} className="btn btn-ghost mobile-menu-btn" style={{ padding: 8, display: 'none' }}>
+                                    <Menu size={24} color="var(--white)" />
+                                </button>
+                            </BubbleItem>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-                        <BubbleItem>
-                        <button style={s.iconBtn} onClick={toggleTheme}>
-                            {theme === 'light' ? <Moon size={20} color="var(--primary)" /> : <Sun size={20} color="var(--warning)" />}
-                        </button>
-                        </BubbleItem>
-                        
-                        <BubbleItem>
-                        <button style={s.iconBtn}>
-                            <Bell size={20} />
-                            <span style={s.notificationDot}></span>
-                        </button>
-                        </BubbleItem>
-                        
-                        <BubbleItem style={s.userInfo}>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }} className="hide-on-mobile">
-                                <span style={{ fontWeight: '600', fontSize: 14, color: 'var(--text-main)' }}>{user.ten}</span>
-                                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                                    {user.vai_tro === 'chu' ? 'Admin' : 'Nhân Viên'}
-                                </span>
-                            </div>
-                            {avatarUrl ? (
-                                <img src={avatarUrl} alt="avatar" style={s.avatar} />
-                            ) : (
-                                <div style={s.avatarPlaceholder}><UserIcon size={20} color="var(--white)" /></div>
-                            )}
-                        </BubbleItem>
-                    </div>
-                </header>
+                            <BubbleItem style={s.searchBox} className="hide-on-mobile">
+                                <Search size={18} color="var(--text-muted)" />
+                                <input type="text" placeholder="Tìm kiếm..." style={s.searchInput} />
+                            </BubbleItem>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                            <BubbleItem>
+                                <button style={s.iconBtn} onClick={toggleTheme}>
+                                    {theme === 'light' ? <Moon size={20} color="var(--primary)" /> : <Sun size={20} color="var(--warning)" />}
+                                </button>
+                            </BubbleItem>
+
+                            <BubbleItem>
+                                <button style={s.iconBtn}>
+                                    <Bell size={20} />
+                                    <span style={s.notificationDot}></span>
+                                </button>
+                            </BubbleItem>
+
+                            <BubbleItem style={s.userInfo}>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }} className="hide-on-mobile">
+                                    <span style={{ fontWeight: '600', fontSize: 14, color: 'var(--text-main)' }}>{user.ten}</span>
+                                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                                        {user.vai_tro === 'chu' ? 'Admin' : 'Nhân Viên'}
+                                    </span>
+                                </div>
+                                {avatarUrl ? (
+                                    <img src={avatarUrl} alt="avatar" style={s.avatar} />
+                                ) : (
+                                    <div style={s.avatarPlaceholder}><UserIcon size={20} color="var(--white)" /></div>
+                                )}
+                            </BubbleItem>
+                        </div>
+                    </header>
                 </StaggerContainer>
 
                 <div style={s.contentInner}>
@@ -175,19 +175,21 @@ const s = {
         boxShadow: '0 4px 15px rgba(108, 93, 211, 0.4)'
     },
     nav: {
-        flex: 1,
-        padding: '0 16px',
+        height: '100%',
+        padding: '12px 16px',
         display: 'flex',
         flexDirection: 'column',
         gap: 8,
-        overflowY: 'auto'
+        overflowY: 'auto',
+        scrollbarWidth: 'none', // Firefox
+        msOverflowStyle: 'none', // IE
     },
     navItem: {
         display: 'flex', alignItems: 'center', gap: 14,
-        padding: '14px 20px', borderRadius: 14, 
+        padding: '14px 20px', borderRadius: 14,
         border: '1px solid var(--gray-200)',
         background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-muted)', fontSize: 15,
-        cursor: 'pointer', transition: 'all 0.3s', textAlign: 'left',
+        cursor: 'pointer', textAlign: 'left',
         boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
     },
     navItemActive: {
@@ -201,7 +203,7 @@ const s = {
     },
     logoutBtn: {
         width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-        padding: '14px', borderRadius: 14, border: '1px solid rgba(255, 77, 79, 0.2)', 
+        padding: '14px', borderRadius: 14, border: '1px solid rgba(255, 77, 79, 0.2)',
         background: 'rgba(255, 77, 79, 0.05)',
         color: 'var(--danger)', fontWeight: '600', cursor: 'pointer', transition: 'var(--transition)'
     },
