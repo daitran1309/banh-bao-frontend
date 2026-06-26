@@ -267,6 +267,11 @@ export default function BaoCao({ nhanVienId }) {
                                     <div style={{ ...s.rank, background: i < 3 ? 'var(--primary)' : 'var(--gray-200)', color: i < 3 ? '#fff' : 'var(--text-muted)' }}>
                                         {i + 1}
                                     </div>
+                                    {b.hinh_anh ? (
+                                        <img src={b.hinh_anh} alt={b.ten_banh} style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--gray-200)', background: 'var(--white)' }} />
+                                    ) : (
+                                        <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(108, 93, 211, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(108, 93, 211, 0.2)', color: 'var(--primary)', fontSize: 20, flexShrink: 0 }}>🥟</div>
+                                    )}
                                     <div style={{ flex: 1 }}>
                                         <div style={{ fontWeight: '600', color: 'var(--text-main)' }}>{b.ten_banh}</div>
                                         <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{b.tong_ban} cái đã bán</div>

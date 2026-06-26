@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import Login from './pages/Login'
 import NhanVien from './pages/NhanVien'
 import ChuShop from './pages/ChuShop'
+import ImageViewer from './components/ImageViewer'
 
 function App() {
     const { user } = useAuth()
@@ -25,6 +26,7 @@ function App() {
     if (!user) return (
         <ThemeProvider>
             <Toaster toastOptions={toasterConfig} />
+            <ImageViewer />
             <Routes><Route path="*" element={<Login />} /></Routes>
         </ThemeProvider>
     )
@@ -32,6 +34,7 @@ function App() {
     return (
         <ThemeProvider>
             <Toaster toastOptions={toasterConfig} />
+            <ImageViewer />
             <Routes>
                 {user.vai_tro === 'chu'
                     ? <Route path="*" element={<ChuShop />} />

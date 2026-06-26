@@ -43,7 +43,7 @@ export default function ChuShop() {
             {tab === 'baocao' && <BaoCao key={`bc_${refreshKey}`} />}
             {tab === 'quan_ly' && <QuanLyBanh />}
             {tab === 'lich_su' && <LichSu key={`ls_${refreshKey}`} onCaClick={ca => setViewCaId(ca.id)} />}
-            {tab === 'yeu_cau' && <YeuCauSua />}
+            {tab === 'yeu_cau' && <YeuCauSua token={token} />}
             {tab === 'ca_nhan' && <CaNhan />}
 
             {viewCaId && <ChiTietCaModal caId={viewCaId} onClose={(changed) => {

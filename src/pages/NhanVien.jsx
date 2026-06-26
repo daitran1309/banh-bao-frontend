@@ -80,7 +80,14 @@ export default function NhanVien() {
                         { ca_id: res.data.id }, { headers })
                     const saved = localStorage.getItem('ca_tam')
                     if (saved) {
-                        setData(JSON.parse(saved))
+                        const parsedSaved = JSON.parse(saved);
+                        // Cập nhật lại hình ảnh từ backend vào localStorage
+                        const mergedData = parsedSaved.map(p => {
+                            const found = tonDau.data.find(t => t.banh_id === p.banh_id);
+                            if (found && found.hinh_anh) p.hinh_anh = found.hinh_anh;
+                            return p;
+                        });
+                        setData(mergedData);
                     } else {
                         setData(tonDau.data.map(b => ({
                             ...b, so_bich_xuat: 0, hong: 0, ton_cuoi: 0
@@ -214,7 +221,14 @@ export default function NhanVien() {
                             <tbody>
                                 {data.map((d, i) => (
                                     <tr key={d.banh_id}>
-                                        <td><strong style={{ color: 'var(--text-main)' }}>{d.ten_banh}</strong></td>
+                                        <td style={{ display: 'flex', alignItems: 'center', gap: 12, borderBottom: 'none' }}>
+                                            {d.hinh_anh ? (
+                                                <img src={d.hinh_anh} alt={d.ten_banh} style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--gray-200)', background: 'var(--white)' }} />
+                                            ) : (
+                                                <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(108, 93, 211, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(108, 93, 211, 0.2)', color: 'var(--primary)', fontSize: 20, flexShrink: 0 }}>🥟</div>
+                                            )}
+                                            <strong style={{ color: 'var(--text-main)' }}>{d.ten_banh}</strong>
+                                        </td>
                                         <td style={{ textAlign: 'center', color: 'var(--text-muted)' }}>{Number(d.gia).toLocaleString('vi-VN')}</td>
                                         <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{d.ton_dau}</td>
                                         <td style={{ textAlign: 'center' }}>

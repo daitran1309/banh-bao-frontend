@@ -11,7 +11,7 @@ export default function QuanLyBanh() {
     const [banhs, setBanhs] = useState([])
     const [showForm, setShowForm] = useState(false)
     const [editing, setEditing] = useState(null)
-    const [form, setForm] = useState({ ten_banh: '', gia: '', so_cai_moi_bich: '' })
+    const [form, setForm] = useState({ ten_banh: '', gia: '', so_cai_moi_bich: '', hinh_anh: '', hinhAnhBase64: '' })
     const [loading, setLoading] = useState(false)
     const [msg, setMsg] = useState('')
     const headers = { Authorization: `Bearer ${token}` }
@@ -25,7 +25,7 @@ export default function QuanLyBanh() {
 
     function moForm(banh = null) {
         setEditing(banh)
-        setForm(banh ? { ten_banh: banh.ten_banh, gia: banh.gia, so_cai_moi_bich: banh.so_cai_moi_bich } : { ten_banh: '', gia: '', so_cai_moi_bich: '' })
+        setForm(banh ? { ten_banh: banh.ten_banh, gia: banh.gia, so_cai_moi_bich: banh.so_cai_moi_bich, hinh_anh: banh.hinh_anh || '', hinhAnhBase64: '' } : { ten_banh: '', gia: '', so_cai_moi_bich: '', hinh_anh: '', hinhAnhBase64: '' })
         setShowForm(true)
         setMsg('')
     }
@@ -79,6 +79,15 @@ export default function QuanLyBanh() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
                     {banhs.map((b, i) => (
                         <BubbleItem key={i} delay={(i % 5) * 0.1} className="card" style={{ ...s.banhCard, opacity: b.trang_thai === 'inactive' ? 0.6 : 1, marginBottom: 0 }}>
+                            {b.hinh_anh ? (
+                                <div style={{ width: 48, height: 48, borderRadius: 12, marginRight: 16, overflow: 'hidden', flexShrink: 0, border: '1px solid var(--gray-200)', background: 'var(--white)' }}>
+                                    <img src={b.hinh_anh} alt={b.ten_banh} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                            ) : (
+                                <div style={{ width: 48, height: 48, borderRadius: 12, marginRight: 16, background: 'rgba(108, 93, 211, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(108, 93, 211, 0.2)', color: 'var(--primary)', fontSize: 24 }}>
+                                    🥟
+                                </div>
+                            )}
                             <div style={{ flex: 1 }}>
                                 <div style={s.banhName}>
                                     {b.ten_banh}
@@ -131,6 +140,32 @@ export default function QuanLyBanh() {
                                 <label style={s.formLabel}>Số lượng cái/bịch</label>
                                 <input className="input-field" type="number" placeholder="Ví dụ: 10" value={form.so_cai_moi_bich}
                                     onChange={e => setForm({ ...form, so_cai_moi_bich: e.target.value })} />
+                            </div>
+                            
+                            <div>
+                                <label style={s.formLabel}>Hình ảnh minh họa</label>
+                                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                                    {(form.hinhAnhBase64 || form.hinh_anh) && (
+                                        <div style={{ width: 60, height: 60, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--gray-200)', flexShrink: 0 }}>
+                                            <img src={form.hinhAnhBase64 || form.hinh_anh} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        </div>
+                                    )}
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <input className="input-field" placeholder="Dán URL hình ảnh..." value={form.hinh_anh}
+                                            onChange={e => setForm({ ...form, hinh_anh: e.target.value, hinhAnhBase64: '' })} />
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Hoặc tải ảnh lên:</span>
+                                            <input type="file" accept="image/*" onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => setForm({ ...form, hinhAnhBase64: reader.result, hinh_anh: '' });
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }} style={{ fontSize: 13 }} />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

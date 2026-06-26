@@ -227,7 +227,14 @@ export default function ChiTietCaModal({ caId, onClose, user, token, inline = fa
                                             const dt = ban * Number(ct.gia || 0)
                                             return (
                                                 <tr key={i}>
-                                                    <td><strong style={{ color: 'var(--text-main)' }}>{ct.ten_banh}</strong></td>
+                                                    <td style={{ display: 'flex', alignItems: 'center', gap: 12, borderBottom: 'none' }}>
+                                                        {ct.hinh_anh ? (
+                                                            <img src={ct.hinh_anh} alt={ct.ten_banh} style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--gray-200)', background: 'var(--white)' }} />
+                                                        ) : (
+                                                            <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(108, 93, 211, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(108, 93, 211, 0.2)', color: 'var(--primary)', fontSize: 20, flexShrink: 0 }}>🥟</div>
+                                                        )}
+                                                        <strong style={{ color: 'var(--text-main)' }}>{ct.ten_banh}</strong>
+                                                    </td>
                                                     <td style={{ textAlign: 'center' }}>{ct.ton_dau}</td>
                                                     <td style={{ textAlign: 'center' }}>
                                                         {isEditing ? <input className="input-field" style={{ width: 70, padding: '6px', textAlign: 'center', border: '1px solid var(--gray-200)' }} type="number" value={ct.so_bich_xuat} onChange={e => {
