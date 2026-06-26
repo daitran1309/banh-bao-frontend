@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { Menu, X, LogOut, User as UserIcon, Search, Bell, Sun, Moon } from 'lucide-react'
 import { StaggerContainer, BubbleItem } from './BubbleAnimation'
+import { motion } from 'framer-motion'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -39,17 +40,35 @@ export default function SidebarLayout({ children, menuItems, activeTab, onTabCha
                                 <BubbleItem
                                     key={item.id}
                                     delay={i * 0.3}
-                                    style={{ ...s.navItem, ...(isActive ? s.navItemActive : {}) }}
+                                    style={{ ...s.navItem, position: 'relative' }}
                                     onClick={() => {
                                         onTabChange(item.id)
                                         setIsMobileOpen(false)
                                     }}
                                     className="dock-item"
                                 >
-                                    <span style={{ color: isActive ? 'var(--white)' : 'var(--text-muted)' }}>
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeTabIndicator"
+                                            initial={false}
+                                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                            style={{
+                                                position: 'absolute',
+                                                top: -1, left: -1, right: -1, bottom: -1,
+                                                background: 'var(--primary-light)',
+                                                border: '1px solid var(--primary)',
+                                                borderLeft: '4px solid var(--primary)',
+                                                borderRadius: 14,
+                                                zIndex: 0
+                                            }}
+                                        />
+                                    )}
+                                    <span style={{ position: 'relative', zIndex: 1, color: isActive ? 'var(--white)' : 'var(--text-muted)' }}>
                                         {item.icon}
                                     </span>
-                                    <span style={{ fontWeight: isActive ? '600' : '500' }}>{item.label}</span>
+                                    <span style={{ position: 'relative', zIndex: 1, fontWeight: isActive ? '600' : '500', color: isActive ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                                        {item.label}
+                                    </span>
                                 </BubbleItem>
                             )
                         })}
