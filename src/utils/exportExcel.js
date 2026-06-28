@@ -185,9 +185,14 @@ export async function exportBienBanExcel(bienBan, ngay) {
         const allPs = [...psSang.map(p => ({ ...p, ca: 'sang' })), ...psChieu.map(p => ({ ...p, ca: 'chieu' }))]
         allPs.forEach(ps => {
             const label = `${ps.loai === 'thu' ? '+ Thu' : '- Chi'}: ${ps.ten} (Ca ${ps.ca === 'sang' ? 'Sáng' : 'Chiều'})`
-            const row = ws.addRow(['', label, '', Number(ps.so_tien)])
+            const rowArr = Array(14).fill('')
+            rowArr[1] = label
+            const moneyCol = ps.ca === 'sang' ? 9 : 14
+            rowArr[moneyCol - 1] = Number(ps.so_tien)
+
+            const row = ws.addRow(rowArr)
             row.getCell(2).style = { alignment: { horizontal: 'left' } }
-            row.getCell(4).style = {
+            row.getCell(moneyCol).style = {
                 numFmt: '#,##0', alignment: { horizontal: 'right' },
                 font: { bold: true, color: { argb: ps.loai === 'thu' ? 'FF059669' : 'FFDC2626' } }
             }
@@ -198,10 +203,10 @@ export async function exportBienBanExcel(bienBan, ngay) {
     ws.addRow([])
 
     const addMoneyRow = (label, valueSang, valueChieu) => {
-        const row = ws.addRow(['', label, '', valueSang, '', '', '', '', '', valueChieu])
+        const row = ws.addRow(['', label, '', '', '', '', '', '', valueSang, '', '', '', '', valueChieu])
         row.getCell(2).style = { font: { bold: true }, alignment: { horizontal: 'left' } }
-        row.getCell(4).style = { numFmt: '#,##0', alignment: { horizontal: 'right' }, font: { color: { argb: 'FF059669' } } }
-        row.getCell(10).style = { numFmt: '#,##0', alignment: { horizontal: 'right' }, font: { color: { argb: 'FF7C3AED' } } }
+        row.getCell(9).style = { numFmt: '#,##0', alignment: { horizontal: 'right' }, font: { color: { argb: 'FF059669' } } }
+        row.getCell(14).style = { numFmt: '#,##0', alignment: { horizontal: 'right' }, font: { color: { argb: 'FF7C3AED' } } }
     }
 
     addMoneyRow('🛵 Grab:', Number(caSang?.grab || 0), Number(caChieu?.grab || 0))
@@ -212,19 +217,19 @@ export async function exportBienBanExcel(bienBan, ngay) {
 
     // Thiếu/Dư
     const thieuDuRow = ws.addRow([
-        '', 'Thiếu / Dư:', '', Number(caSang?.thieu_du || 0), '', '', '', '', '', Number(caChieu?.thieu_du || 0)
+        '', 'Thiếu / Dư:', '', '', '', '', '', '', Number(caSang?.thieu_du || 0), '', '', '', '', Number(caChieu?.thieu_du || 0)
     ])
     thieuDuRow.getCell(2).style = { font: { bold: true, size: 12 } }
     const thieuDuSang = Number(caSang?.thieu_du || 0)
     const thieuDuChieu = Number(caChieu?.thieu_du || 0)
-    thieuDuRow.getCell(4).style = {
+    thieuDuRow.getCell(9).style = {
         numFmt: '#,##0', font: {
             bold: true, size: 12,
             color: { argb: thieuDuSang >= 0 ? 'FF059669' : 'FFDC2626' }
         },
         alignment: { horizontal: 'right' }
     }
-    thieuDuRow.getCell(10).style = {
+    thieuDuRow.getCell(14).style = {
         numFmt: '#,##0', font: {
             bold: true, size: 12,
             color: { argb: thieuDuChieu >= 0 ? 'FF059669' : 'FFDC2626' }
