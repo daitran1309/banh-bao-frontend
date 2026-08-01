@@ -3,10 +3,11 @@ import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import XacNhanCa from '../components/XacNhanCa'
 import SidebarLayout from '../components/SidebarLayout'
-import { Briefcase, Clock, User as UserIcon, Plus, X, BarChart2 } from 'lucide-react'
+import { Briefcase, Clock, User as UserIcon, Plus, X, BarChart2, Mic } from 'lucide-react'
 import LichSu from './LichSu'
 import CaNhan from './CaNhan'
 import BaoCao from './BaoCao'
+import DocPhepTinh from './DocPhepTinh'
 import ChiTietCaModal from '../components/ChiTietCaModal'
 import InfoTooltip from '../components/InfoTooltip'
 import { StaggerContainer, BubbleItem } from '../components/BubbleAnimation'
@@ -167,6 +168,7 @@ export default function NhanVien() {
         { id: 'lam_viec', label: 'Làm việc', icon: <Briefcase size={20} /> },
         { id: 'bao_cao', label: 'Thống kê', icon: <BarChart2 size={20} /> },
         { id: 'lich_su', label: 'Lịch sử ca', icon: <Clock size={20} /> },
+        { id: 'doc_phep_tinh', label: 'Đọc phép tính', icon: <Mic size={20} /> },
         { id: 'ca_nhan', label: 'Cá nhân', icon: <UserIcon size={20} /> },
     ]
 
@@ -395,6 +397,7 @@ export default function NhanVien() {
 
             {tab === 'bao_cao' && <BaoCao nhanVienId={user.id} />}
             {tab === 'lich_su' && <LichSu key={lichSuKey} onCaClick={ca => setViewCaId(ca.id)} />}
+            {tab === 'doc_phep_tinh' && <DocPhepTinh />}
             {tab === 'ca_nhan' && <CaNhan />}
 
             {viewCaId && (

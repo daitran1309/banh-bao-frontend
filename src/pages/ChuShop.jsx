@@ -6,9 +6,10 @@ import LichSu from './LichSu'
 import YeuCauSua from '../components/YeuCauSua'
 import ChiTietCaModal from '../components/ChiTietCaModal'
 import SidebarLayout from '../components/SidebarLayout'
-import { ClipboardList, BarChart2, Clock, Package, Bell, User as UserIcon } from 'lucide-react'
+import { ClipboardList, BarChart2, Clock, Package, Bell, User as UserIcon, Mic } from 'lucide-react'
 import BienBan from './BienBan'
 import CaNhan from './CaNhan'
+import DocPhepTinh from './DocPhepTinh'
 
 export default function ChuShop() {
     const { user, token } = useAuth()
@@ -29,6 +30,7 @@ export default function ChuShop() {
         { id: 'lich_su', label: 'Lịch sử ca', icon: <Clock size={20} /> },
         { id: 'quan_ly', label: 'Quản lý bánh', icon: <Package size={20} /> },
         { id: 'yeu_cau', label: 'Yêu cầu sửa', icon: <Bell size={20} /> },
+        { id: 'doc_phep_tinh', label: 'Đọc phép tính', icon: <Mic size={20} /> },
         { id: 'ca_nhan', label: 'Cá nhân', icon: <UserIcon size={20} /> },
     ]
 
@@ -44,6 +46,7 @@ export default function ChuShop() {
             {tab === 'quan_ly' && <QuanLyBanh />}
             {tab === 'lich_su' && <LichSu key={`ls_${refreshKey}`} onCaClick={ca => setViewCaId(ca.id)} />}
             {tab === 'yeu_cau' && <YeuCauSua token={token} />}
+            {tab === 'doc_phep_tinh' && <DocPhepTinh />}
             {tab === 'ca_nhan' && <CaNhan />}
 
             {viewCaId && <ChiTietCaModal caId={viewCaId} onClose={(changed) => {
