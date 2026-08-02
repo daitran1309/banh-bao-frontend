@@ -18,8 +18,10 @@ const wordMap = [
 function normalize(text) {
   let t = text.toLowerCase();
   for (const [re, rep] of wordMap) t = t.replace(re, rep);
-  t = t.replace(/\s*\.\s*/g, '.');
+  t = t.replace(/(?<=\d)\s*[.,]\s*(?=\d)/g, '.');
   t = t.replace(/(?<=\d)\s+(?=\d)/g, '');
+  t = t.replace(/[.,](?!\d)/g, '');
+  t = t.replace(/([+\-*/()])/g, ' $1 ');
   return t.replace(/\s+/g, ' ').trim();
 }
 
@@ -56,10 +58,10 @@ function extractExpression(raw) {
   }
 
   if (op1 !== null && operator !== null && op2 !== null) {
-    return `${op1}${operator}${op2}`;
+    return `${op1} ${operator} ${op2}`;
   }
 
-  return norm.replace(/[^0-9+\-*/.() ]/g, '').replace(/\s+/g, '');
+  return norm.replace(/[^0-9+\-*/.() ]/g, '').replace(/\s+/g, ' ').trim();
 }
 
 export default function DocPhepTinh() {
@@ -146,7 +148,13 @@ export default function DocPhepTinh() {
             ? (shouldNewline ? '\n' : ' ')
             : '';
 
-          const newText = prev + sep + finalStr;
+          let newText = prev + sep + finalStr;
+          
+          const lines = newText.split('\n');
+          const lastLine = lines[lines.length - 1];
+          lines[lines.length - 1] = extractExpression(lastLine);
+          newText = lines.join('\n');
+          
           tryCalcFromText(newText);
           return newText;
         });
